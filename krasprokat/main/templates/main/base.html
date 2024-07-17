@@ -1,22 +1,23 @@
    <!DOCTYPE html>
    <html lang="en">
    <head>
+       {% load static %}
        <meta charset="UTF-8">
        <meta name="viewport" content="width=device-width, initial-scale=1.0">
        <title>{% block title %}My Django Site{% endblock %}</title>
-       <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+       <link rel="stylesheet" href="{% static 'styles.css' %}">
+       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
    </head>
    <body>
        <header>
            <div class="logo">
-               <img src="{% static 'main/krasprokat-logo.svg' %}" alt="Logo">
+               <img src="{% static 'krasprokat-logo.svg' %}" alt="Logo">
            </div>
            <h1>Welcome to My Django Site</h1>
        </header>
        <nav>
            <ul>
                <li><a href="{% url 'home' %}">Home</a></li>
-               <li><a href="{% url 'about' %}">About</a></li>
            </ul>
        </nav>
        <main>
@@ -25,7 +26,10 @@
            {% endblock %}
        </main>
        <footer>
-           <p>&copy; 2023 My Django Site</p>
+           <p>&copy; 2024 КрасПрокат</p>
        </footer>
+       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
    </body>
    </html>
