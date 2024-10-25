@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'krasprokat.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "krasprokat.settings")
 
 application = get_wsgi_application()
