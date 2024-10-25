@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ item.name }} - Подробности{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>{{ item.name }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" class="img-fluid" alt="{{ item.name }}">
+            {% else %}
+                <img src="{% static 'default-placeholder.png' %}" class="img-fluid" alt="Нет изображения">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h2>Информация о товаре</h2>
+            <p><strong>Категория:</strong> {{ item.category }}</p>
+            <p><strong>Описание:</strong> {{ item.description }}</p>
+            <p><strong>Стоимость:</strong> {{ item.price_per_day }} руб./день</p>
+            <p><strong>Доступное количество:</strong> {{ item.available_quantity }}</p>
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'add_inventory_item' %}" class="btn btn-secondary">Редактировать</a>
+                <a href="{% url 'inventory_list' %}" class="btn btn-primary">Назад к списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

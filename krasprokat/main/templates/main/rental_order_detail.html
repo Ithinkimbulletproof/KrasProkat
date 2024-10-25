@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+
+{% block title %}Заказ аренды - {{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Заказ аренды - {{ order.id }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Информация о заказе</h2>
+            <p><strong>Клиент:</strong> {{ order.customer.name }}</p>
+            <p><strong>Инвентарь:</strong> {{ order.inventory_item.name }}</p>
+            <p><strong>Дата начала:</strong> {{ order.start_date }}</p>
+            <p><strong>Дата окончания:</strong> {{ order.end_date }}</p>
+            <p><strong>Статус:</strong> {{ order.status }}</p>
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'edit_rental_order' order.pk %}" class="btn btn-warning">Редактировать</a>
+                <a href="{% url 'rental_order_list' %}" class="btn btn-primary">Назад к списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
