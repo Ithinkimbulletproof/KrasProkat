@@ -41,7 +41,6 @@ class RentalOrderForm(forms.ModelForm):
             "customer",
             "rental_start_date",
             "rental_end_date",
-            "total_price",
             "is_active",
         ]
         labels = {
