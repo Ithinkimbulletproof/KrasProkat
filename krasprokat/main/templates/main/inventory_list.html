@@ -1,33 +1,39 @@
-{% extends "main/base.html" %}
-
-{% load static %}
-
+{% extends 'main/base.html' %}
 {% block title %}Список инвентаря{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="mb-4">Список инвентаря</h1>
+<h1 class="mt-4">Инвентарь</h1>
 
-    <div class="row">
-        {% for item in items %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
-                    {% else %}
-                        <img src="{% static 'default-placeholder.png' %}" class="card-img-top" alt="Нет изображения">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ item.name }}</h5>
-                        <p class="card-text">Категория: {{ item.category }}</p>
-                        <p class="card-text">Стоимость: {{ item.price_per_day }} руб./день</p>
-                        <a href="{% url 'inventory_detail' item.pk %}" class="btn btn-outline-primary">Подробнее</a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <p>Нет доступного инвентаря.</p>
-        {% endfor %}
-    </div>
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'add_inventory_item' %}" class="btn btn-primary">Добавить инвентарь</a>
 </div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th>Категория</th>
+      <th>Цена за день</th>
+      <th>В наличии / Всего</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.name }}</td>
+      <td>{{ item.category }}</td>
+      <td>{{ item.price_per_day }} ₽</td>
+      <td>{{ item.available_quantity }} / {{ item.total_quantity }}</td>
+      <td>
+        <a href="{% url 'inventory_detail' item.pk %}" class="btn btn-sm btn-info">Просмотр</a>
+        {% if user.is_staff %}
+        <a href="{% url 'update_inventory_stock' item.pk %}" class="btn btn-sm btn-warning">Обновить</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% endblock %}

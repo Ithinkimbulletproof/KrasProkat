@@ -1,16 +1,17 @@
-{% extends "main/base.html" %}
-
-{% block title %}Добавить заказ аренды{% endblock %}
+{% extends 'main/base.html' %}
+{% block title %}Создать заказ{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h1>Добавить новый заказ аренды</h1>
+<div class="container mt-4">
+  <h1>Создать новый заказ</h1>
 
-    <form method="post" class="mt-3">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a href="{% url 'rental_order_list' %}" class="btn btn-secondary">Отмена</a>
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-primary">Создать заказ</button>
+  </form>
+
+  <a href="{% url 'rental_order_list' %}" class="btn btn-secondary mt-3">Назад к списку заказов</a>
 </div>
 {% endblock %}

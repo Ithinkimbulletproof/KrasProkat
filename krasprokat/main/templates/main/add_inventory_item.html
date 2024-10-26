@@ -8,6 +8,21 @@
 
     <form method="post" enctype="multipart/form-data" class="mt-3">
         {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Ошибки:</strong>
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{% url 'inventory_list' %}" class="btn btn-secondary">Отмена</a>

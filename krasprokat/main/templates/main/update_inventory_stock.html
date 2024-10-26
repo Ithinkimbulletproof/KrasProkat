@@ -1,30 +1,33 @@
 {% extends "main/base.html" %}
 
+{% block title %}Обновить запасы: {{ item.name }}{% endblock %}
+
 {% block content %}
-  <div class="container">
+<div class="container my-4">
     <h1>Обновить запасы инвентаря: {{ item.name }}</h1>
 
     <form method="post">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="available_quantity" class="form-label">Текущее количество: {{ item.available_quantity }}</label>
-        <input type="number" class="form-control" id="available_quantity" name="available_quantity" value="{{ item.available_quantity }}" required>
-      </div>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="available_quantity" class="form-label">Текущее количество</label>
+            <input type="number" class="form-control" id="available_quantity" name="available_quantity" value="{{ item.available_quantity }}" disabled>
+        </div>
 
-      <div class="mb-3">
-        <label for="update_quantity" class="form-label">Изменить количество:</label>
-        <input type="number" class="form-control" id="update_quantity" name="update_quantity" required>
-      </div>
+        <div class="mb-3">
+            <label for="update_quantity" class="form-label">Изменить количество</label>
+            <input type="number" class="form-control" id="update_quantity" name="update_quantity" required>
+            <small class="form-text text-muted">Введите положительное или отрицательное значение для увеличения или уменьшения.</small>
+        </div>
 
-      <button type="submit" class="btn btn-primary">Обновить количество</button>
+        <button type="submit" class="btn btn-primary">Обновить количество</button>
     </form>
 
     {% if error %}
-      <div class="alert alert-danger mt-3">
-        {{ error }}
-      </div>
+        <div class="alert alert-danger mt-3">
+            {{ error }}
+        </div>
     {% endif %}
 
     <a href="{% url 'inventory_list' %}" class="btn btn-secondary mt-3">Назад к списку инвентаря</a>
-  </div>
+</div>
 {% endblock %}
