@@ -37,13 +37,21 @@ class InventoryItem(models.Model):
 
 
 class InventoryStock(models.Model):
-    item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, verbose_name="Товар")
-    location = models.ForeignKey(RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин")
-    total_quantity = models.PositiveIntegerField(default=0, verbose_name="Общее количество")
-    available_quantity = models.PositiveIntegerField(default=0, verbose_name="Доступное количество")
+    item = models.ForeignKey(
+        InventoryItem, on_delete=models.CASCADE, verbose_name="Товар"
+    )
+    location = models.ForeignKey(
+        RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин"
+    )
+    total_quantity = models.PositiveIntegerField(
+        default=0, verbose_name="Общее количество"
+    )
+    available_quantity = models.PositiveIntegerField(
+        default=0, verbose_name="Доступное количество"
+    )
 
     class Meta:
-        unique_together = ('item', 'location')
+        unique_together = ("item", "location")
         ordering = ["item"]
 
     def __str__(self):
@@ -68,9 +76,15 @@ class Customer(models.Model):
 
 
 class RentalOrder(models.Model):
-    item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, verbose_name="Товар")
-    location = models.ForeignKey(RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин")
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Клиент")
+    item = models.ForeignKey(
+        InventoryItem, on_delete=models.CASCADE, verbose_name="Товар"
+    )
+    location = models.ForeignKey(
+        RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин"
+    )
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, verbose_name="Клиент"
+    )
     rental_start_date = models.DateField(verbose_name="Дата начала аренды")
     rental_end_date = models.DateField(verbose_name="Дата окончания аренды")
     total_price = models.DecimalField(

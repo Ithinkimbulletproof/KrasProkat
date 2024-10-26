@@ -95,5 +95,7 @@ class RentalOrderForm(forms.ModelForm):
         if item and location:
             stock = InventoryStock.objects.filter(item=item, location=location).first()
             if stock and stock.available_quantity <= 0:
-                raise ValidationError("Недостаточно доступного количества товара в выбранном магазине.")
+                raise ValidationError(
+                    "Недостаточно доступного количества товара в выбранном магазине."
+                )
         return cleaned_data
