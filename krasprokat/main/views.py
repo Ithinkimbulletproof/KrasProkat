@@ -1,20 +1,24 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import InventoryItem, RentalOrder, Customer
 from .forms import InventoryItemForm, RentalOrderForm, CustomerForm
 
+# Проверка, является ли пользователь администратором
+def is_admin(user):
+    return user.is_staff
 
 # Главная страница
 def home(request):
     return render(request, "main/home.html")
-
 
 # Список инвентаря
 def inventory_list(request):
     items = InventoryItem.objects.all()
     return render(request, "main/inventory_list.html", {"items": items})
 
-
-# Добавление инвентаря
+# Добавление инвентаря с проверкой доступа
+@login_required
+@user_passes_test(is_admin)
 def add_inventory_item(request):
     if request.method == "POST":
         form = InventoryItemForm(request.POST, request.FILES)
@@ -25,18 +29,15 @@ def add_inventory_item(request):
         form = InventoryItemForm()
     return render(request, "main/add_inventory_item.html", {"form": form})
 
-
 # Детали инвентаря
 def inventory_detail(request, pk):
     item = get_object_or_404(InventoryItem, pk=pk)
     return render(request, "main/inventory_detail.html", {"item": item})
 
-
 # Список клиентов
 def customer_list(request):
     customers = Customer.objects.all()
     return render(request, "main/customer_list.html", {"customers": customers})
-
 
 # Добавление клиента
 def add_customer(request):
@@ -49,12 +50,10 @@ def add_customer(request):
         form = CustomerForm()
     return render(request, "main/add_customer.html", {"form": form})
 
-
 # Список заказов
 def rental_order_list(request):
     orders = RentalOrder.objects.select_related("item", "customer")
     return render(request, "main/rental_order_list.html", {"orders": orders})
-
 
 # Создание заказа с проверкой доступного количества и обновлением
 def create_rental_order(request):
