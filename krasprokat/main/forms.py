@@ -2,6 +2,7 @@ from django import forms
 from .models import InventoryItem, RentalOrder, Customer
 from django.core.exceptions import ValidationError
 
+
 class InventoryItemForm(forms.ModelForm):
     class Meta:
         model = InventoryItem
@@ -22,6 +23,7 @@ class InventoryItemForm(forms.ModelForm):
             "image": "Изображение",
         }
 
+
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -32,6 +34,7 @@ class CustomerForm(forms.ModelForm):
             "email": "Email",
             "address": "Адрес",
         }
+
 
 class RentalOrderForm(forms.ModelForm):
     class Meta:
@@ -48,7 +51,6 @@ class RentalOrderForm(forms.ModelForm):
             "customer": "Клиент",
             "rental_start_date": "Дата начала аренды",
             "rental_end_date": "Дата окончания аренды",
-            "total_price": "Итоговая цена",
             "is_active": "Активный",
         }
 
@@ -56,7 +58,13 @@ class RentalOrderForm(forms.ModelForm):
         cleaned_data = super().clean()
         rental_start_date = cleaned_data.get("rental_start_date")
         rental_end_date = cleaned_data.get("rental_end_date")
+        item = cleaned_data.get("item")
 
         if rental_start_date and rental_end_date:
             if rental_start_date >= rental_end_date:
-                raise ValidationError("Дата окончания аренды должна быть позже даты начала.")
+                raise ValidationError(
+                    "Дата окончания аренды должна быть позже даты начала."
+                )
+
+        if item and item.available_quantity <= 0:
+            raise ValidationError("Данный товар недоступен для аренды.")

@@ -17,7 +17,7 @@ class InventoryItem(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -28,13 +28,13 @@ class Customer(models.Model):
     phone = models.CharField(
         max_length=20,
         verbose_name="Телефон",
-        validators=[RegexValidator(regex=r'^\+?[1-9]\d{1,14}$')]
+        validators=[RegexValidator(regex=r"^\+?[1-9]\d{1,14}$")],
     )
     email = models.EmailField(blank=True, verbose_name="Email")
     address = models.TextField(blank=True, verbose_name="Адрес")
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -55,7 +55,7 @@ class RentalOrder(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Активный")
 
     class Meta:
-        ordering = ['-rental_start_date']
+        ordering = ["-rental_start_date"]
 
     def save(self, *args, **kwargs):
         if self.rental_start_date and self.rental_end_date:
@@ -73,11 +73,11 @@ class RentalLocation(models.Model):
     phone = models.CharField(
         max_length=20,
         verbose_name="Телефон",
-        validators=[RegexValidator(regex=r'^\+?[1-9]\d{1,14}$')]
+        validators=[RegexValidator(regex=r"^\+?[1-9]\d{1,14}$")],
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def __str__(self):
         return self.name

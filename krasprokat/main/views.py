@@ -56,13 +56,20 @@ def rental_order_list(request):
     return render(request, "main/rental_order_list.html", {"orders": orders})
 
 
-# Создание заказа
+# Создание заказа с проверкой доступного количества и обновлением
 def create_rental_order(request):
     if request.method == "POST":
         form = RentalOrderForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect("rental_order_list")
+            rental_order = form.save(commit=False)
+            item = rental_order.item
+            if item.available_quantity > 0:
+                rental_order.save()
+                item.available_quantity -= 1
+                item.save()
+                return redirect("rental_order_list")
+            else:
+                form.add_error(None, "Недостаточное количество доступного товара")
     else:
         form = RentalOrderForm()
     return render(request, "main/create_rental_order.html", {"form": form})
