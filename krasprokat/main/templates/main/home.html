@@ -1,13 +1,12 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
 
-<!-- Адреса и телефоны пунктов проката -->
 <p class="d-grid mb-1">
-    <a class="btn btn-dark" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Адреса и телефоны пунктов проката</a>
+    <button class="btn btn-dark" onclick="toggleCollapse()">Адреса и телефоны пунктов проката</button>
 </p>
 
 <div class="collapse" id="collapseExample">
