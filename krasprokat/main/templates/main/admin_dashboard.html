@@ -74,6 +74,10 @@
                     <td>{{ order.rental_end_date }}</td>
                     <td>{% if order.is_active %}Активный{% else %}Завершён{% endif %}</td>
                 </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Нет активных заказов</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

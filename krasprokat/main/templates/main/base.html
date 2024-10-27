@@ -52,8 +52,12 @@
                     <li><a href="#" class="nav-link px-2 text-white">Ремонт</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Спецтехника</a></li>
 
-                    {% if request.user.is_authenticated and request.user.profile.role == 'admin' %}
-                        <li><a href="{% url 'admin_dashboard' %}" class="nav-link px-2 text-warning">Управление</a></li>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.profile.role == 'admin' %}
+                            <li><a href="{% url 'admin_dashboard' %}" class="nav-link px-2 text-warning">Управление</a></li>
+                        {% elif request.user.profile.role == 'seller' %}
+                            <li><a href="{% url 'seller_dashboard' %}" class="nav-link px-2 text-warning">Панель продавца</a></li>
+                        {% endif %}
                     {% endif %}
                 </ul>
 

@@ -7,8 +7,49 @@
 
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Ошибки:</strong>
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <div class="mb-3">
+      {{ form.item.label_tag }}
+      {{ form.item }}
+      {% if form.item.errors %}
+          <div class="text-danger">{{ form.item.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      {{ form.customer.label_tag }}
+      {{ form.customer }}
+      {% if form.customer.errors %}
+          <div class="text-danger">{{ form.customer.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      {{ form.rental_start_date.label_tag }}
+      {{ form.rental_start_date }}
+      {% if form.rental_start_date.errors %}
+          <div class="text-danger">{{ form.rental_start_date.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      {{ form.rental_end_date.label_tag }}
+      {{ form.rental_end_date }}
+      {% if form.rental_end_date.errors %}
+          <div class="text-danger">{{ form.rental_end_date.errors }}</div>
+      {% endif %}
+    </div>
     <button type="submit" class="btn btn-primary">Создать заказ</button>
   </form>
 

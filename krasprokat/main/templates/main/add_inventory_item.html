@@ -23,7 +23,34 @@
                 </ul>
             </div>
         {% endif %}
-        {{ form.as_p }}
+        <div class="mb-3">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="text-danger">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="text-danger">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.price.label_tag }}
+            {{ form.price }}
+            {% if form.price.errors %}
+                <div class="text-danger">{{ form.price.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="text-danger">{{ form.image.errors }}</div>
+            {% endif %}
+        </div>
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{% url 'inventory_list' %}" class="btn btn-secondary">Отмена</a>
     </form>

@@ -1,11 +1,52 @@
 {% extends "main/base.html" %}
 
+{% block title %}Создать профиль продавца{% endblock %}
+
 {% block content %}
+<div class="container mt-4">
   <h2>Создать профиль продавца</h2>
+
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Создать продавца</button>
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Ошибки:</strong>
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <div class="mb-3">
+      {{ form.username.label_tag }}
+      {{ form.username }}
+      {% if form.username.errors %}
+          <div class="text-danger">{{ form.username.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      {{ form.password.label_tag }}
+      {{ form.password }}
+      {% if form.password.errors %}
+          <div class="text-danger">{{ form.password.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      {{ form.email.label_tag }}
+      {{ form.email }}
+      {% if form.email.errors %}
+          <div class="text-danger">{{ form.email.errors }}</div>
+      {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">Создать продавца</button>
   </form>
-  <a href="{% url 'customer_list' %}">Назад к списку клиентов</a>
+
+  <a href="{% url 'customer_list' %}" class="btn btn-secondary mt-3">Назад к списку клиентов</a>
+</div>
 {% endblock %}

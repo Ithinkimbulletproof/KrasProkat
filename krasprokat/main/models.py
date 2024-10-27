@@ -15,7 +15,6 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} ({self.get_role_display()})"
 
-
 class RentalLocation(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название")
     address = models.CharField(max_length=200, verbose_name="Адрес")
@@ -30,7 +29,6 @@ class RentalLocation(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class InventoryItem(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")
@@ -48,7 +46,6 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class InventoryStock(models.Model):
     item = models.ForeignKey(
@@ -71,7 +68,6 @@ class InventoryStock(models.Model):
     def __str__(self):
         return f"{self.item.name} ({self.location.name}) - {self.available_quantity}/{self.total_quantity}"
 
-
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name="customer_profile")
     name = models.CharField(max_length=100, verbose_name="Имя")
@@ -88,7 +84,6 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class RentalOrder(models.Model):
     item = models.ForeignKey(
@@ -116,8 +111,11 @@ class RentalOrder(models.Model):
             self.total_price = self.item.price_per_day * rental_days
         if self.is_active:
             stock = InventoryStock.objects.get(item=self.item, location=self.location)
-            stock.available_quantity -= 1
-            stock.save()
+            if stock.available_quantity > 0:
+                stock.available_quantity -= 1
+                stock.save()
+            else:
+                raise ValueError("Недостаточное количество доступного товара.")
         super().save(*args, **kwargs)
 
     def __str__(self):

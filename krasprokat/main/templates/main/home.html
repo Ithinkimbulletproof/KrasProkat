@@ -12,94 +12,37 @@
 <div class="collapse" id="collapseExample">
     <div class="card card-body mb-1" style="min-height: 200px; transition: height 0.3s ease;">
         <div class="row mt-2 mb-2" id="offices">
+            {% for office in offices %}
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>ул. Телевизорная, 1/31</span></div>
+                <div class="address"><span>{{ office.city }}, <br>{{ office.street }}, {{ office.number }}</span></div>
                 <div>
-                    <a class="phone" href="tel:+73912809595" title="Пункт проката на Телевизорной">+7 391 280−95−95</a>
+                    <a class="phone" href="tel:{{ office.phone }}" title="Пункт проката на {{ office.street }}">{{ office.phone }}</a>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>ул. Калинина, 167</span></div>
-                <div>
-                    <a class="phone" href="tel:+79833648458" title="Пункт проката на Калинина">+7 983 364−84−58</a>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>ул. Брянская 2-я, 6д</span></div>
-                <div>
-                    <a class="phone" href="tel:+73912506545" title="Пункт проката на Брянской">+7 391 250−65−45</a>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>ул. Ключевская, 13</span></div>
-                <div>
-                    <a class="phone" href="tel:+73912592233" title="Пункт проката на Ключевской">+7 391 259−22−33</a>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>Енисейский тракт 10 километр, 2/1</span></div>
-                <div>
-                    <a class="phone" href="tel:+79135674594" title="Пункт проката в Солнечном">+7 913 567−45−94</a>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="address"><span>г. Красноярск, <br>ул. Металлургов, 2т</span></div>
-                <div>
-                    <a class="phone" href="tel:+79131960343" title="Пункт проката на Металлургов">+7 913 196−03−43</a>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
 <div id="myCarousel" class="my-4 carousel slide shadow-sm rounded" data-bs-ride="carousel">
     <div class="carousel-indicators">
-        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-label="Слайд 1" aria-current="true"></button>
-        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Слайд 2"></button>
-        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Слайд 3"></button>
-        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="3" aria-label="Слайд 4"></button>
+        {% for slide in slides %}
+        <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="{{ forloop.counter0 }}" aria-label="Слайд {{ forloop.counter }}" {% if forloop.first %}class="active" aria-current="true"{% endif %}></button>
+        {% endfor %}
     </div>
 
     <div class="carousel-inner shadow-sm rounded">
-        <div class="carousel-item active">
-            <img src="{% static 'drel.png' %}" class="d-block w-100" alt="Изображение дрели">
+        {% for slide in slides %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{% static slide.image %}" class="d-block w-100" alt="{{ slide.alt }}">
             <div class="container">
                 <div class="carousel-caption text-with-shadow">
-                    <h1>Прокат инструментов</h1>
-                    <p>Арендуйте профессиональные инструменты у нас.</p>
+                    <h1>{{ slide.title }}</h1>
+                    <p>{{ slide.description }}</p>
                 </div>
             </div>
         </div>
-
-        <div class="carousel-item">
-            <img src="{% static 'zavod.png' %}" class="d-block w-100" alt="Изображение завода">
-            <div class="container">
-                <div class="carousel-caption text-with-shadow">
-                    <h1>Оборудование для стройки</h1>
-                    <p>Надежное оборудование для любого проекта.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <img src="{% static 'stroitel.png' %}" class="d-block w-100" alt="Изображение строительного процесса">
-            <div class="container">
-                <div class="carousel-caption text-with-shadow">
-                    <h1>Работа для профессионалов</h1>
-                    <p>Все, что нужно для крупных стройпроектов.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="carousel-item">
-            <img src="{% static 'instruments.png' %}" class="d-block w-100" alt="Изображение инструментов">
-            <div class="container">
-                <div class="carousel-caption text-with-shadow">
-                    <h1>Бесплатные консультации</h1>
-                    <p>Поможем подобрать инструменты и оборудование.</p>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
     <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">

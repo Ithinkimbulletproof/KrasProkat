@@ -132,7 +132,10 @@ def user_login(request):
 
 @login_required
 def customer_account(request):
-    customer = get_object_or_404(Customer, user=request.user)
+    try:
+        customer = Customer.objects.get(user=request.user)
+    except Customer.DoesNotExist:
+        return redirect("add_customer")  # перенаправление на страницу добавления профиля клиента
     return render(request, "main/customer_account.html", {"customer": customer})
 
 @login_required

@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
 
-
 class InventoryItemForm(forms.ModelForm):
     class Meta:
         model = InventoryItem
@@ -15,7 +14,6 @@ class InventoryItemForm(forms.ModelForm):
             "price_per_day": "Цена за день",
             "image": "Изображение",
         }
-
 
 class InventoryStockForm(forms.ModelForm):
     class Meta:
@@ -35,7 +33,6 @@ class InventoryStockForm(forms.ModelForm):
             raise ValidationError("Общее количество не может быть отрицательным.")
         return total_quantity
 
-
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -46,7 +43,6 @@ class CustomerForm(forms.ModelForm):
             "email": "Email",
             "address": "Адрес",
         }
-
 
 class RentalOrderForm(forms.ModelForm):
     location = forms.ModelChoiceField(
@@ -84,7 +80,6 @@ class RentalOrderForm(forms.ModelForm):
                 raise ValidationError("Недостаточно доступного количества товара в выбранном магазине.")
         return cleaned_data
 
-
 class SellerCreationForm(forms.ModelForm):
     class Meta:
         model = User
@@ -97,6 +92,12 @@ class SellerCreationForm(forms.ModelForm):
             "password": forms.PasswordInput(),
         }
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
