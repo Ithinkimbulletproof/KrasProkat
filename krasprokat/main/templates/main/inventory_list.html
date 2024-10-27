@@ -5,7 +5,9 @@
 <h1 class="mt-4">Инвентарь</h1>
 
 <div class="d-flex justify-content-end mb-3">
-  <a href="{% url 'add_inventory_item' %}" class="btn btn-primary">Добавить инвентарь</a>
+  {% if user.is_authenticated and user.profile.role == 'admin' %}
+    <a href="{% url 'add_inventory_item' %}" class="btn btn-primary">Добавить инструмент</a>
+  {% endif %}
 </div>
 
 <table class="table table-striped">

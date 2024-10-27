@@ -1,5 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+
+class Profile(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Админ'),
+        ('seller', 'Продавец'),
+        ('customer', 'Покупатель'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
+
+    def __str__(self):
+        return f"{self.user.username} ({self.get_role_display()})"
 
 
 class RentalLocation(models.Model):

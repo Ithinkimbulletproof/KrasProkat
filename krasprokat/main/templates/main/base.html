@@ -48,17 +48,23 @@
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="/" class="nav-link px-2 {% if request.path == '/' %}text-warning{% else %}text-white{% endif %}">Главная</a></li>
                     <li><a href="{% url 'inventory_list' %}" class="nav-link px-2 {% if request.path == '/inventory/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
-                    <li><a href="{% url 'rental_conditions' %}" class="nav-link px-2 {% if request.path == '/rental-conditions/' %}text-warning{% else %}text-white{% endif %}">Условия проката</a></li>
-                    <li><a href="{% url 'repair' %}" class="nav-link px-2 {% if request.path == '/repair/' %}text-warning{% else %}text-white{% endif %}">Ремонт</a></li>
-                    <li><a href="{% url 'special_machinery' %}" class="nav-link px-2 {% if request.path == '/special-machinery/' %}text-warning{% else %}text-white{% endif %}">Спецтехника</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">Условия проката</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">Ремонт</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">Спецтехника</a></li>
+
+                    {% if request.user.is_authenticated and request.user.profile.role == 'admin' %}
+                        <li><a href="{% url 'admin_dashboard' %}" class="nav-link px-2 text-warning">Управление</a></li>
+                    {% endif %}
                 </ul>
 
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-                    <input type="search" class="form-control form-control-dark" placeholder="Найти" aria-label="Search">
-                </form>
-
                 <div class="text-end">
-                    <button type="button" class="btn btn-warning">Поиск</button>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'customer_account' %}" class="btn btn-outline-light me-2">Личный кабинет</a>
+                        <a href="{% url 'logout' %}" class="btn btn-warning">Выход</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Вход</a>
+                        <a href="{% url 'register' %}" class="btn btn-warning">Регистрация</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

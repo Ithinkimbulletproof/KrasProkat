@@ -1,18 +1,13 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation
+from django.contrib.auth.models import User
+from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
 
 
 class InventoryItemForm(forms.ModelForm):
     class Meta:
         model = InventoryItem
-        fields = [
-            "name",
-            "description",
-            "category",
-            "price_per_day",
-            "image",
-        ]
+        fields = ["name", "description", "category", "price_per_day", "image"]
         labels = {
             "name": "Название",
             "description": "Описание",
@@ -63,14 +58,7 @@ class RentalOrderForm(forms.ModelForm):
 
     class Meta:
         model = RentalOrder
-        fields = [
-            "item",
-            "customer",
-            "location",
-            "rental_start_date",
-            "rental_end_date",
-            "is_active",
-        ]
+        fields = ["item", "customer", "location", "rental_start_date", "rental_end_date", "is_active"]
         labels = {
             "item": "Товар",
             "customer": "Клиент",
@@ -88,14 +76,30 @@ class RentalOrderForm(forms.ModelForm):
 
         if rental_start_date and rental_end_date:
             if rental_start_date >= rental_end_date:
-                raise ValidationError(
-                    "Дата окончания аренды должна быть позже даты начала."
-                )
+                raise ValidationError("Дата окончания аренды должна быть позже даты начала.")
 
         if item and location:
             stock = InventoryStock.objects.filter(item=item, location=location).first()
             if stock and stock.available_quantity <= 0:
-                raise ValidationError(
-                    "Недостаточно доступного количества товара в выбранном магазине."
-                )
+                raise ValidationError("Недостаточно доступного количества товара в выбранном магазине.")
         return cleaned_data
+
+
+class SellerCreationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "password"]
+        labels = {
+            "username": "Имя пользователя",
+            "password": "Пароль",
+        }
+        widgets = {
+            "password": forms.PasswordInput(),
+        }
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ["role"]
+        labels = {"role": "Роль"}
