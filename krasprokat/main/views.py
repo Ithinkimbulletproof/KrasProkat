@@ -111,7 +111,6 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Назначение роли клиенту при регистрации
             Profile.objects.create(user=user, role='customer')
             return redirect('login')
     else:
@@ -149,7 +148,6 @@ def create_seller(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Назначение роли продавца
             Profile.objects.create(user=user, role='seller')
             return redirect("customer_list")
     else:

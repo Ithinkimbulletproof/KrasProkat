@@ -1,0 +1,11 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+  <h2>Личный кабинет</h2>
+  <p><strong>Имя:</strong> {{ customer.name }}</p>
+  <p><strong>Email:</strong> {{ customer.email }}</p>
+  <p><strong>Телефон:</strong> {{ customer.phone }}</p>
+  <p><strong>Адрес:</strong> {{ customer.address }}</p>
+
+  <a href="{% url 'customer_rentals' %}">История аренды</a>
+{% endblock %}

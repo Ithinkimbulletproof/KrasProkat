@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+  <h2>История аренды</h2>
+  {% if rentals %}
+    <table>
+      <tr>
+        <th>Товар</th>
+        <th>Магазин</th>
+        <th>Дата начала</th>
+        <th>Дата окончания</th>
+        <th>Цена</th>
+        <th>Статус</th>
+      </tr>
+      {% for rental in rentals %}
+        <tr>
+          <td>{{ rental.item.name }}</td>
+          <td>{{ rental.location.name }}</td>
+          <td>{{ rental.rental_start_date }}</td>
+          <td>{{ rental.rental_end_date }}</td>
+          <td>{{ rental.total_price }} руб.</td>
+          <td>{{ rental.is_active|yesno:"Активен,Завершен" }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>Нет заказов на аренду.</p>
+  {% endif %}
+  <a href="{% url 'customer_account' %}">Назад к профилю</a>
+{% endblock %}

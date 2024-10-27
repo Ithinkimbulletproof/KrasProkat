@@ -73,6 +73,7 @@ class InventoryStock(models.Model):
 
 
 class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name="customer_profile")
     name = models.CharField(max_length=100, verbose_name="Имя")
     phone = models.CharField(
         max_length=20,
