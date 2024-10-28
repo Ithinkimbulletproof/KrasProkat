@@ -1,18 +1,23 @@
 {% extends "main/base.html" %}
+{% block title %}История аренды{% endblock %}
 
 {% block content %}
+<div class="container mt-4">
   <h2>История аренды</h2>
   {% if rentals %}
-    <table>
-      <tr>
-        <th>Товар</th>
-        <th>Магазин</th>
-        <th>Дата начала</th>
-        <th>Дата окончания</th>
-        <th>Цена</th>
-        <th>Статус</th>
-      </tr>
-      {% for rental in rentals %}
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th>Товар</th>
+          <th>Магазин</th>
+          <th>Дата начала</th>
+          <th>Дата окончания</th>
+          <th>Цена</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rental in rentals %}
         <tr>
           <td>{{ rental.item.name }}</td>
           <td>{{ rental.location.name }}</td>
@@ -21,10 +26,12 @@
           <td>{{ rental.total_price }} руб.</td>
           <td>{{ rental.is_active|yesno:"Активен,Завершен" }}</td>
         </tr>
-      {% endfor %}
+        {% endfor %}
+      </tbody>
     </table>
   {% else %}
     <p>Нет заказов на аренду.</p>
   {% endif %}
-  <a href="{% url 'customer_account' %}">Назад к профилю</a>
+  <a href="{% url 'customer_account' %}" class="btn btn-secondary mt-3">Назад к профилю</a>
+</div>
 {% endblock %}

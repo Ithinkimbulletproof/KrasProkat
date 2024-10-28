@@ -1,24 +1,25 @@
 {% extends "main/base.html" %}
-
 {% block title %}Заказ аренды - №{{ order.id }}{% endblock %}
 
 {% block content %}
 <div class="container my-4">
-    <h1 class="mb-4">Детали заказа аренды - №{{ order.id }}</h1>
+    <h2 class="mb-4">Детали заказа аренды - №{{ order.id }}</h2>
 
     <div class="row">
         <div class="col-md-8">
-            <h2>Информация о заказе</h2>
-            <p><strong>Клиент:</strong> {{ order.customer.name }}</p>
-            <p><strong>Контакт:</strong> {{ order.customer.phone }}</p>
-            <p><strong>Инвентарь:</strong> {{ order.inventory_item.name }}</p>
-            <p><strong>Дата начала:</strong> {{ order.start_date|date:"d.m.Y" }}</p>
-            <p><strong>Дата окончания:</strong> {{ order.end_date|date:"d.m.Y" }}</p>
-            <p><strong>Статус:</strong> {{ order.status }}</p>
+            <div class="card p-4">
+                <h3>Информация о заказе</h3>
+                <p><strong>Клиент:</strong> {{ order.customer.name }}</p>
+                <p><strong>Контакт:</strong> {{ order.customer.phone }}</p>
+                <p><strong>Инвентарь:</strong> {{ order.inventory_item.name }}</p>
+                <p><strong>Дата начала:</strong> {{ order.start_date|date:"d.m.Y" }}</p>
+                <p><strong>Дата окончания:</strong> {{ order.end_date|date:"d.m.Y" }}</p>
+                <p><strong>Статус:</strong> {{ order.status }}</p>
+            </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm p-3">
+            <div class="card shadow-sm p-3 mb-4">
                 <h3>Дополнительная информация</h3>
                 <p><strong>Сумма аренды:</strong> {{ order.total_amount }} руб.</p>
                 <p><strong>Срок аренды:</strong> {{ order.duration }} дней</p>
@@ -28,7 +29,7 @@
 
     <div class="d-flex justify-content-between mt-4">
         <a href="{% url 'edit_rental_order' order.pk %}" class="btn btn-warning">Редактировать</a>
-        <a href="{% url 'rental_order_list' %}" class="btn btn-primary">Назад к списку</a>
+        <a href="{% url 'rental_order_list' %}" class="btn btn-secondary">Назад к списку</a>
     </div>
 </div>
 {% endblock %}

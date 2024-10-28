@@ -3,15 +3,16 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h1>{{ item.name }}</h1>
-  <p><strong>Категория:</strong> {{ item.category }}</p>
-  <p><strong>Описание:</strong> {{ item.description }}</p>
-  <p><strong>Цена за день:</strong> {{ item.price_per_day }} ₽</p>
-  <p><strong>В наличии:</strong> {{ item.available_quantity }} из {{ item.total_quantity }}</p>
-  {% if item.image %}
-    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid my-3" style="max-width: 300px;">
-  {% endif %}
-
-  <a href="{% url 'inventory_list' %}" class="btn btn-secondary">Назад к списку</a>
+  <h2>{{ item.name }}</h2>
+  <div class="card p-4">
+    <p><strong>Категория:</strong> {{ item.category }}</p>
+    <p><strong>Описание:</strong> {{ item.description }}</p>
+    <p><strong>Цена за день:</strong> {{ item.price_per_day }} ₽</p>
+    <p><strong>В наличии:</strong> {{ item.available_quantity }} из {{ item.total_quantity }}</p>
+    {% if item.image %}
+      <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid my-3" style="max-width: 300px;">
+    {% endif %}
+  </div>
+  <a href="{% url 'inventory_list' %}" class="btn btn-secondary mt-3">Назад к списку</a>
 </div>
 {% endblock %}

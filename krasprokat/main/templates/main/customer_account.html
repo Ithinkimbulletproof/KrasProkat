@@ -1,11 +1,16 @@
 {% extends "main/base.html" %}
 
-{% block content %}
-  <h2>Личный кабинет</h2>
-  <p><strong>Имя:</strong> {{ customer.name }}</p>
-  <p><strong>Email:</strong> {{ customer.email }}</p>
-  <p><strong>Телефон:</strong> {{ customer.phone }}</p>
-  <p><strong>Адрес:</strong> {{ customer.address }}</p>
+{% block title %}Личный кабинет{% endblock %}
 
-  <a href="{% url 'customer_rentals' %}">История аренды</a>
+{% block content %}
+<div class="container mt-4">
+  <h2>Личный кабинет</h2>
+  <div class="card p-3">
+    <p><strong>Имя:</strong> {{ customer.name }}</p>
+    <p><strong>Email:</strong> {{ customer.email }}</p>
+    <p><strong>Телефон:</strong> {{ customer.phone }}</p>
+    <p><strong>Адрес:</strong> {{ customer.address }}</p>
+  </div>
+  <a href="{% url 'customer_rentals' %}" class="btn btn-secondary mt-3">История аренды</a>
+</div>
 {% endblock %}
