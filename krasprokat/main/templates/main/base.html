@@ -48,7 +48,7 @@
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="/" class="nav-link px-2 {% if request.path == '/' %}text-warning{% else %}text-white{% endif %}">Главная</a></li>
                     <li><a href="{% url 'inventory_location_choice' %}" class="nav-link px-2 {% if request.path == '/inventory/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
-                    <li><a href="#" class="nav-link px-2 text-white">Условия проката</a></li>
+                    <li><a href="{% url 'rental_terms' %}" class="nav-link px-2 {% if request.path == '/rental-terms/' %}text-warning{% else %}text-white{% endif %}">Условия проката</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Ремонт</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Спецтехника</a></li>
 

@@ -15,6 +15,9 @@ def is_seller(user):
 def home(request):
     return render(request, "main/home.html")
 
+def rental_terms(request):
+    return render(request, "main/rental_terms.html")
+
 def inventory_location_choice(request):
     locations = RentalLocation.objects.all()
     return render(request, "main/inventory_location_choice.html", {"locations": locations})

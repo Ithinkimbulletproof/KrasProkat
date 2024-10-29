@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from .views import rental_terms
 
 urlpatterns = [
     path("", views.home, name="home"),  # Главная страница
+    path('rental-terms/', rental_terms, name='rental_terms'),  # Условия проката
 
     # Инвентарь
     path("inventory/", views.inventory_location_choice, name="inventory_location_choice"),  # Выбор магазина
