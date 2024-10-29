@@ -1,0 +1,17 @@
+{% extends "main/base.html" %}
+{% block title %}Выбор магазина{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Выберите магазин для просмотра инвентаря</h2>
+    <ul class="list-group mt-3">
+        {% for location in locations %}
+        <li class="list-group-item">
+            <a href="{% url 'inventory_list' location.id %}">
+                {{ location.city }}, {{ location.street }}, {{ location.number }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

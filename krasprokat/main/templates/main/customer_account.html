@@ -5,12 +5,56 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Личный кабинет</h2>
-  <div class="card p-3">
+
+  <button id="editButton" class="btn mb-3" style="background-color: #ffbe2c; color: white;">Редактировать</button>
+
+  <div id="viewProfile" class="card p-3">
     <p><strong>Имя:</strong> {{ customer.name }}</p>
     <p><strong>Email:</strong> {{ customer.email }}</p>
     <p><strong>Телефон:</strong> {{ customer.phone }}</p>
     <p><strong>Адрес:</strong> {{ customer.address }}</p>
   </div>
+
+  <form id="editProfileForm" action="{% url 'customer_account' %}" method="post" style="display: none;">
+    {% csrf_token %}
+    <div class="card p-3">
+      <div class="mb-3">
+        <label for="name" class="form-label">Имя:</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ customer.name }}">
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ customer.email }}">
+      </div>
+      <div class="mb-3">
+        <label for="phone" class="form-label">Телефон:</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ customer.phone }}">
+      </div>
+      <div class="mb-3">
+        <label for="address" class="form-label">Адрес:</label>
+        <input type="text" class="form-control" id="address" name="address" value="{{ customer.address }}">
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <button type="button" class="btn btn-danger" onclick="toggleEditMode()">Отмена</button>
+      </div>
+    </div>
+  </form>
+
   <a href="{% url 'customer_rentals' %}" class="btn btn-secondary mt-3">История аренды</a>
 </div>
+
+<script>
+  function toggleEditMode() {
+    const viewProfile = document.getElementById("viewProfile");
+    const editProfileForm = document.getElementById("editProfileForm");
+    const editButton = document.getElementById("editButton");
+
+    viewProfile.style.display = viewProfile.style.display === "none" ? "block" : "none";
+    editProfileForm.style.display = editProfileForm.style.display === "none" ? "block" : "none";
+    editButton.style.display = editButton.style.display === "none" ? "block" : "none";
+  }
+
+  document.getElementById("editButton").addEventListener("click", toggleEditMode);
+</script>
 {% endblock %}

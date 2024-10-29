@@ -6,9 +6,11 @@ urlpatterns = [
     path("", views.home, name="home"),  # Главная страница
 
     # Инвентарь
-    path("inventory/", views.inventory_list, name="inventory_list"),  # Список инвентаря
+    path("inventory/", views.inventory_location_choice, name="inventory_location_choice"),  # Выбор магазина
+    path("inventory/<int:location_id>/", views.inventory_list, name="inventory_list_by_location"),  # Список инвентаря для выбранного магазина
     path("inventory/<int:pk>/", views.inventory_detail, name="inventory_detail"),  # Детали инвентаря
     path("inventory/add/", views.add_inventory_item, name="add_inventory_item"),  # Добавление инвентаря
+    path("inventory/update/<int:stock_id>/", views.update_inventory_stock, name="update_inventory_stock"),  # Обновление инвентаря
 
     # Клиенты
     path("customers/", views.customer_list, name="customer_list"),  # Список клиентов

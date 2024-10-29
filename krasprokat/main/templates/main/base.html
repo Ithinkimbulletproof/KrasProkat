@@ -47,7 +47,7 @@
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="/" class="nav-link px-2 {% if request.path == '/' %}text-warning{% else %}text-white{% endif %}">Главная</a></li>
-                    <li><a href="{% url 'inventory_list' %}" class="nav-link px-2 {% if request.path == '/inventory/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
+                    <li><a href="{% url 'inventory_location_choice' %}" class="nav-link px-2 {% if request.path == '/inventory/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Условия проката</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Ремонт</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Спецтехника</a></li>
@@ -66,7 +66,7 @@
                         <a href="{% url 'customer_account' %}" class="btn btn-outline-light me-2">Личный кабинет</a>
                         <form method="post" action="{% url 'logout' %}" style="display:inline;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-warning">Выход</button>
+                            <button type="submit" class="btn" style="background-color: #ffbe2c; color: white;">Выход</button>
                         </form>
                     {% else %}
                         <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Вход</a>

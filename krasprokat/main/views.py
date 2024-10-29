@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
 from .forms import InventoryItemForm, RentalOrderForm, CustomerForm
+
 
 def is_admin(user):
     return hasattr(user, 'profile') and user.profile.role == 'admin'
@@ -14,9 +15,18 @@ def is_seller(user):
 def home(request):
     return render(request, "main/home.html")
 
-def inventory_list(request):
-    stocks = InventoryStock.objects.select_related("item", "location")
-    return render(request, "main/inventory_list.html", {"stocks": stocks})
+def inventory_location_choice(request):
+    locations = RentalLocation.objects.all()
+    return render(request, "main/inventory_location_choice.html", {"locations": locations})
+
+def inventory_list(request, location_id):
+    location = get_object_or_404(RentalLocation, id=location_id)
+    stocks = InventoryStock.objects.filter(location=location)
+    return render(request, "main/inventory_list.html", {
+        "stocks": stocks,
+        "location": location,
+        "can_add_inventory": request.user.is_authenticated and is_admin(request.user)
+    })
 
 @login_required
 @user_passes_test(is_admin)
@@ -32,7 +42,7 @@ def add_inventory_item(request):
                     total_quantity=0,
                     available_quantity=0,
                 )
-            return redirect("inventory_list")
+            return redirect("inventory_location_choice")
     else:
         form = InventoryItemForm()
     return render(request, "main/add_inventory_item.html", {"form": form})
@@ -89,21 +99,12 @@ def update_inventory_stock(request, stock_id):
             if new_total_quantity >= stock.available_quantity:
                 stock.total_quantity = new_total_quantity
                 stock.save()
-                return redirect("inventory_list")
+                return redirect("inventory_list_by_location", location_id=stock.location.id)
             else:
                 error_message = "Общее количество не может быть меньше доступного."
-                return render(
-                    request,
-                    "main/update_inventory_stock.html",
-                    {"stock": stock, "error": error_message},
-                )
         except ValueError:
             error_message = "Введите допустимое числовое значение."
-            return render(
-                request,
-                "main/update_inventory_stock.html",
-                {"stock": stock, "error": error_message},
-            )
+        return render(request, "main/update_inventory_stock.html", {"stock": stock, "error": error_message})
     return render(request, "main/update_inventory_stock.html", {"stock": stock})
 
 def register(request):
@@ -130,13 +131,21 @@ def user_login(request):
             return render(request, "main/login.html", {"error": error_message})
     return render(request, "main/login.html")
 
+
 @login_required
 def customer_account(request):
-    try:
-        customer = Customer.objects.get(user=request.user)
-    except Customer.DoesNotExist:
-        return redirect("add_customer")  # перенаправление на страницу добавления профиля клиента
+    customer, created = Customer.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        customer.name = request.POST.get("name")
+        customer.email = request.POST.get("email")
+        customer.phone = request.POST.get("phone")
+        customer.address = request.POST.get("address")
+        customer.save()
+        return redirect("customer_account")
+
     return render(request, "main/customer_account.html", {"customer": customer})
+
 
 @login_required
 def customer_rentals(request):

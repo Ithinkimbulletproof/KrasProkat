@@ -5,11 +5,11 @@
 <div class="container mt-4">
   <h1>Инвентарь</h1>
 
-  <div class="d-flex justify-content-end mb-3">
-    {% if user.is_authenticated and user.profile.role == 'admin' %}
+  {% if can_add_inventory %}
+    <div class="d-flex justify-content-end mb-3">
       <a href="{% url 'add_inventory_item' %}" class="btn btn-primary">Добавить инструмент</a>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 
   <table class="table table-striped table-hover">
     <thead class="table-dark">
@@ -30,7 +30,7 @@
         <td>{{ item.available_quantity }} / {{ item.total_quantity }}</td>
         <td>
           <a href="{% url 'inventory_detail' item.pk %}" class="btn btn-sm btn-info">Просмотр</a>
-          {% if user.is_staff %}
+          {% if can_update_inventory %}
           <a href="{% url 'update_inventory_stock' item.pk %}" class="btn btn-sm btn-warning">Обновить</a>
           {% endif %}
         </td>
