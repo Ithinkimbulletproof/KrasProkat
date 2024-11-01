@@ -9,7 +9,10 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    "customers",
+    "inventory",
     "main",
+    "admin_panel",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
