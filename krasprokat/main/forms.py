@@ -1,7 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
+from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name", "description"]
+        labels = {
+            "name": "Название категории",
+            "description": "Описание категории",
+        }
 
 class InventoryItemForm(forms.ModelForm):
     class Meta:
@@ -18,13 +27,15 @@ class InventoryItemForm(forms.ModelForm):
 class InventoryStockForm(forms.ModelForm):
     class Meta:
         model = InventoryStock
-        fields = ["location", "total_quantity"]
+        fields = ["location", "total_quantity", "available_quantity"]
         labels = {
             "location": "Местоположение (магазин)",
             "total_quantity": "Общее количество",
+            "available_quantity": "Доступное количество",
         }
         help_texts = {
-            "total_quantity": "Введите общее количество инструмента, доступного в магазине."
+            "total_quantity": "Введите общее количество инструмента, доступного в магазине.",
+            "available_quantity": "Введите количество доступных единиц товара.",
         }
 
     def clean_total_quantity(self):
@@ -32,6 +43,12 @@ class InventoryStockForm(forms.ModelForm):
         if total_quantity < 0:
             raise ValidationError("Общее количество не может быть отрицательным.")
         return total_quantity
+
+    def clean_available_quantity(self):
+        available_quantity = self.cleaned_data.get("available_quantity")
+        if available_quantity < 0:
+            raise ValidationError("Доступное количество не может быть отрицательным.")
+        return available_quantity
 
 class CustomerForm(forms.ModelForm):
     class Meta:
@@ -104,3 +121,18 @@ class UserProfileForm(forms.ModelForm):
         model = Profile
         fields = ["role"]
         labels = {"role": "Роль"}
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = RentalLocation
+        fields = ['name', 'address', 'phone']
+
+class RentalLocationForm(forms.ModelForm):
+    class Meta:
+        model = RentalLocation
+        fields = ['name', 'address', 'phone']
+        labels = {
+            'name': 'Название магазина',
+            'address': 'Адрес',
+            'phone': 'Телефон',
+        }

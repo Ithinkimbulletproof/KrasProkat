@@ -6,7 +6,6 @@
 <div class="container mt-5">
     <h2>Панель администратора</h2>
 
-    <!-- Статистика по инвентарю и заказам -->
     <div class="row">
         <div class="col-md-4">
             <div class="card bg-light mb-3">
@@ -37,20 +36,21 @@
         </div>
     </div>
 
-    <!-- Действия администратора -->
     <div class="row mt-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="{% url 'add_inventory_item' %}" class="btn btn-primary w-100">Добавить товар</a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="{% url 'add_customer' %}" class="btn btn-primary w-100">Добавить клиента</a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="{% url 'create_seller' %}" class="btn btn-primary w-100">Добавить продавца</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'create_location' %}" class="btn btn-primary w-100">Создать магазин</a>
         </div>
     </div>
 
-    <!-- Активные заказы -->
     <div class="mt-5">
         <h3>Активные заказы</h3>
         <table class="table table-striped">

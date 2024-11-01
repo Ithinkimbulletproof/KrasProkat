@@ -2,9 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
-from .forms import InventoryItemForm, RentalOrderForm, CustomerForm
-
+from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category
+from .forms import InventoryItemForm, RentalOrderForm, CustomerForm, RentalLocationForm, CategoryForm
 
 def is_admin(user):
     return hasattr(user, 'profile') and user.profile.role == 'admin'
@@ -77,16 +76,14 @@ def create_rental_order(request):
         form = RentalOrderForm(request.POST)
         if form.is_valid():
             rental_order = form.save(commit=False)
-            stock = InventoryStock.objects.get(
-                item=rental_order.item, location=rental_order.location
-            )
+            stock = InventoryStock.objects.get(item=rental_order.item, location=rental_order.location)
             if stock.available_quantity > 0:
                 rental_order.save()
                 stock.available_quantity -= 1
                 stock.save()
                 return redirect("rental_order_list")
             else:
-                form.add_error(None, "Недостаточное количество доступного товара")
+                form.add_error(None, "Недостаточное количество доступного товара.")
     else:
         form = RentalOrderForm()
     return render(request, "main/create_rental_order.html", {"form": form})
@@ -134,7 +131,6 @@ def user_login(request):
             return render(request, "main/login.html", {"error": error_message})
     return render(request, "main/login.html")
 
-
 @login_required
 def customer_account(request):
     customer, created = Customer.objects.get_or_create(user=request.user)
@@ -148,7 +144,6 @@ def customer_account(request):
         return redirect("customer_account")
 
     return render(request, "main/customer_account.html", {"customer": customer})
-
 
 @login_required
 def customer_rentals(request):
@@ -168,3 +163,57 @@ def create_seller(request):
     else:
         form = UserCreationForm()
     return render(request, "main/create_seller.html", {"form": form})
+
+@login_required
+def admin_dashboard(request):
+    return render(request, 'main/admin_dashboard.html')
+
+def create_location(request):
+    if request.method == 'POST':
+        form = RentalLocationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')
+    else:
+        form = RentalLocationForm()
+    return render(request, 'main/create_location.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'main/category_list.html', {'categories': categories})
+
+@login_required
+@user_passes_test(is_admin)
+def category_create(request):
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+    return render(request, 'main/category_form.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def category_update(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == "POST":
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'main/category_form.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == "POST":
+        category.delete()
+        return redirect('category_list')
+    return render(request, 'main/category_confirm_delete.html', {'category': category})

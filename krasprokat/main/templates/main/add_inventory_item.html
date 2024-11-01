@@ -1,58 +1,96 @@
 {% extends "main/base.html" %}
 
-{% block title %}Добавить инвентарь{% endblock %}
+{% block title %}Добавить инвентарь и категорию{% endblock %}
 
 {% block content %}
 <div class="container my-4">
-    <h1>Добавить новый инвентарь</h1>
+    <h1>Добавить категорию и инвентарь</h1>
 
-    <form method="post" enctype="multipart/form-data" class="mt-3">
+    <h3 class="mt-4">Создать категорию</h3>
+    <form method="post" action="{% url 'category_create' %}" class="mt-3">
         {% csrf_token %}
-        {% if form.errors %}
+        {% if category_form.errors %}
             <div class="alert alert-danger">
-                <strong>Ошибки:</strong>
+                <strong>Ошибки при создании категории:</strong>
                 <ul>
-                    {% for field in form %}
+                    {% for field in category_form %}
                         {% for error in field.errors %}
                             <li>{{ error }}</li>
                         {% endfor %}
                     {% endfor %}
-                    {% for error in form.non_field_errors %}
+                    {% for error in category_form.non_field_errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
         <div class="mb-3">
-            {{ form.name.label_tag }}
-            {{ form.name }}
-            {% if form.name.errors %}
-                <div class="text-danger">{{ form.name.errors }}</div>
+            {{ category_form.name.label_tag }}
+            {{ category_form.name }}
+            {% if category_form.name.errors %}
+                <div class="text-danger">{{ category_form.name.errors }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Создать категорию</button>
+    </form>
+
+    <h3 class="mt-5">Добавить инвентарь в категорию</h3>
+    <form method="post" action="{% url 'add_inventory_item' %}" enctype="multipart/form-data" class="mt-3">
+        {% csrf_token %}
+        {% if inventory_form.errors %}
+            <div class="alert alert-danger">
+                <strong>Ошибки при добавлении инвентаря:</strong>
+                <ul>
+                    {% for field in inventory_form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in inventory_form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            {{ inventory_form.name.label_tag }}
+            {{ inventory_form.name }}
+            {% if inventory_form.name.errors %}
+                <div class="text-danger">{{ inventory_form.name.errors }}</div>
             {% endif %}
         </div>
         <div class="mb-3">
-            {{ form.description.label_tag }}
-            {{ form.description }}
-            {% if form.description.errors %}
-                <div class="text-danger">{{ form.description.errors }}</div>
+            {{ inventory_form.description.label_tag }}
+            {{ inventory_form.description }}
+            {% if inventory_form.description.errors %}
+                <div class="text-danger">{{ inventory_form.description.errors }}</div>
             {% endif %}
         </div>
         <div class="mb-3">
-            {{ form.price.label_tag }}
-            {{ form.price }}
-            {% if form.price.errors %}
-                <div class="text-danger">{{ form.price.errors }}</div>
+            {{ inventory_form.price_per_day.label_tag }}
+            {{ inventory_form.price_per_day }}
+            {% if inventory_form.price_per_day.errors %}
+                <div class="text-danger">{{ inventory_form.price_per_day.errors }}</div>
             {% endif %}
         </div>
         <div class="mb-3">
-            {{ form.image.label_tag }}
-            {{ form.image }}
-            {% if form.image.errors %}
-                <div class="text-danger">{{ form.image.errors }}</div>
+            {{ inventory_form.image.label_tag }}
+            {{ inventory_form.image }}
+            {% if inventory_form.image.errors %}
+                <div class="text-danger">{{ inventory_form.image.errors }}</div>
             {% endif %}
         </div>
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a href="{% url 'inventory_list' %}" class="btn btn-secondary">Отмена</a>
+        <div class="mb-3">
+            {{ inventory_form.category.label_tag }}
+            {{ inventory_form.category }}
+            {% if inventory_form.category.errors %}
+                <div class="text-danger">{{ inventory_form.category.errors }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить инвентарь</button>
+        <a href="{% url 'inventory_location_choice' %}" class="btn btn-secondary">Отмена</a>
     </form>
 </div>
 {% endblock %}
