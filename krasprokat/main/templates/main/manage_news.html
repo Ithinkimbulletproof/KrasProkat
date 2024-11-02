@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Управление новостями{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Управление новостями</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Добавить новость</button>
+    </form>
+
+    <h3 class="mt-4">Существующие новости</h3>
+    <ul>
+        {% for news in news_items %}
+            <li>
+                {{ news.title }} - <a href="{% url 'edit_news_item' news.id %}">Редактировать</a>
+                <form action="{% url 'delete_news_item' news.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

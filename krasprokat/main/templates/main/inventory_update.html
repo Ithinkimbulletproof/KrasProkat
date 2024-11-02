@@ -20,8 +20,13 @@
         </div>
 
         <div class="form-group">
-            {{ form.category.label_tag }}
-            {{ form.category }}
+            {% if form.category.field.queryset.exists %}
+                {{ form.category.label_tag }}
+                {{ form.category }}
+            {% else %}
+                <label class="form-label">Категория</label>
+                <p class="text-muted">Категории отсутствуют. Добавьте хотя бы одну категорию, чтобы привязать товар.</p>
+            {% endif %}
         </div>
 
         <div class="form-group">
@@ -34,16 +39,27 @@
             {{ form.image }}
         </div>
 
+        {% if stocks.count > 1 %}
+            <div class="form-group mb-3">
+                <label for="location" class="form-label">Выберите магазин</label>
+                <select id="location" name="location" class="form-control" required>
+                    {% for stock in stocks %}
+                        <option value="{{ stock.location.id }}">{{ stock.location.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
         <h3 class="mt-4">Обновить запасы</h3>
 
         <div class="form-group mb-3">
             <label for="available_quantity" class="form-label">Текущее количество</label>
-            <input type="number" class="form-control" id="available_quantity" value="{{ inventory_item.available_quantity }}" disabled>
+            <input type="number" class="form-control" id="available_quantity" value="{{ stock.available_quantity }}" disabled>
         </div>
 
         <div class="form-group mb-3">
             <label for="update_quantity" class="form-label">Количество для обновления</label>
-            <input type="number" class="form-control" id="update_quantity" name="update_quantity" placeholder="Введите значение" required>
+            <input type="number" class="form-control" id="update_quantity" name="update_quantity" value="0" required>
             <small class="form-text text-muted">Введите положительное значение для увеличения или отрицательное для уменьшения.</small>
         </div>
 

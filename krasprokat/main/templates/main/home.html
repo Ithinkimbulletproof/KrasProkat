@@ -113,27 +113,18 @@
 </div>
 
 <div class="row mb-2">
-    <div class="col-md-6">
-        <div class="row g-0 border overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative rounded">
-            <div class="col p-4 d-flex flex-column position-static">
-                <strong class="d-inline-block mb-2 text-primary">Новости</strong>
-                <h3 class="mb-0">Новые поступления</h3>
-                <div class="mb-1 text-muted">12 Ноября</div>
-                <p class="card-text mb-auto">Обновление ассортимента инструментов на складе.</p>
+    {% for news in news_items %}
+        <div class="col-md-6">
+            <div class="row g-0 border overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative rounded">
+                <div class="col p-4 d-flex flex-column position-static">
+                    <strong class="d-inline-block mb-2 {% if news.category == 'news' %}text-primary{% else %}text-success{% endif %}">{{ news.get_category_display }}</strong>
+                    <h3 class="mb-0">{{ news.title }}</h3>
+                    <div class="mb-1 text-muted">{{ news.date }}</div>
+                    <p class="card-text mb-auto">{{ news.description }}</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="row g-0 border overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative rounded">
-            <div class="col p-4 d-flex flex-column position-static">
-                <strong class="d-inline-block mb-2 text-success">Акции</strong>
-                <h3 class="mb-0">Скидки на аренду</h3>
-                <div class="mb-1 text-muted">11 Ноября</div>
-                <p class="mb-auto">Скидка на аренду оборудования для постоянных клиентов.</p>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
 {% endblock %}

@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User, Group
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category
-from .forms import InventoryItemForm, RentalOrderForm, CustomerForm, RentalLocationForm, CategoryForm
+from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, NewsItem, CarouselImage
+from .forms import InventoryItemForm, RentalOrderForm, CustomerForm, RentalLocationForm, CategoryForm, LocationForm, CarouselImageForm, NewsItemForm
+
 
 def is_admin(user):
     return hasattr(user, 'profile') and user.profile.role == 'admin'
@@ -12,10 +15,42 @@ def is_seller(user):
     return hasattr(user, 'profile') and user.profile.role == 'seller'
 
 def home(request):
-    return render(request, "main/home.html")
+    carousel_images = CarouselImage.objects.all()
+    news_items = NewsItem.objects.all().order_by('-date')[:2]
+    return render(request, 'main/home.html', {'carousel_images': carousel_images, 'news_items': news_items})
+
+def manage_carousel(request):
+    if request.method == "POST":
+        form = CarouselImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_carousel')
+    else:
+        form = CarouselImageForm()
+
+    carousel_images = CarouselImage.objects.all()
+    return render(request, 'main/manage_carousel.html', {'form': form, 'carousel_images': carousel_images})
+
+def manage_news(request):
+    if request.method == "POST":
+        form = NewsItemForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_news')
+    else:
+        form = NewsItemForm()
+
+    news_items = NewsItem.objects.all()
+    return render(request, 'main/manage_news.html', {'form': form, 'news_items': news_items})
 
 def rental_terms(request):
     return render(request, "main/rental_terms.html")
+
+def search_users(request):
+    query = request.GET.get('query', '')
+    users = User.objects.filter(username__icontains=query) | User.objects.filter(email__icontains=query)
+    users_list = [{'id': user.id, 'username': user.username, 'email': user.email} for user in users]
+    return JsonResponse(users_list, safe=False)
 
 @login_required
 @user_passes_test(is_admin)
@@ -43,18 +78,18 @@ def inventory_location_choice(request):
 def inventory_list(request, location_id):
     location = get_object_or_404(RentalLocation, id=location_id)
     stocks = InventoryStock.objects.filter(location=location)
+
     return render(request, "main/inventory_list.html", {
         "stocks": stocks,
         "location": location,
-        "can_add_inventory": request.user.is_authenticated and is_admin(request.user)
     })
 
 
 @login_required
 @user_passes_test(is_admin)
 def category_inventory_management(request):
-    categories = Category.objects.all()  # Получаем все категории
-    inventory_items = InventoryItem.objects.all()  # Получаем все товары
+    categories = Category.objects.all()
+    inventory_items = InventoryItem.objects.all()
 
     if request.method == "POST":
         form = InventoryItemForm(request.POST, request.FILES)
@@ -77,12 +112,13 @@ def category_inventory_management(request):
         "inventory_items": inventory_items,
     })
 
-
 @login_required
 @user_passes_test(is_admin)
 def inventory_update(request, pk):
     inventory_item = get_object_or_404(InventoryItem, pk=pk)
-    stock = get_object_or_404(InventoryStock, item=inventory_item)
+
+    stocks = InventoryStock.objects.filter(item=inventory_item)
+    stock = stocks.first() if stocks.count() == 1 else None
 
     error_message = None
 
@@ -90,8 +126,14 @@ def inventory_update(request, pk):
         form = InventoryItemForm(request.POST, request.FILES, instance=inventory_item)
         new_total_quantity = request.POST.get("update_quantity")
 
+        if not stock:
+            location_id = request.POST.get("location")
+            if location_id:
+                location = get_object_or_404(RentalLocation, pk=location_id)
+                stock = InventoryStock.objects.get(item=inventory_item, location=location)
+
         try:
-            if form.is_valid():
+            if form.is_valid() and stock:
                 form.save()
 
                 new_total_quantity = int(new_total_quantity)
@@ -110,7 +152,7 @@ def inventory_update(request, pk):
     return render(request, "main/inventory_update.html", {
         "form": form,
         "inventory_item": inventory_item,
-        "stock": stock,
+        "stocks": stocks,
         "error": error_message,
     })
 
@@ -212,28 +254,38 @@ def customer_rentals(request):
 @user_passes_test(is_admin)
 def create_seller(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            Profile.objects.create(user=user, role='seller')
-            return redirect("customer_list")
-    else:
-        form = UserCreationForm()
-    return render(request, "main/create_seller.html", {"form": form})
+        user_id = request.POST.get("user")
+        user = User.objects.get(id=user_id)
+
+        seller_group = Group.objects.get(name='Продавцы')
+        seller_group.user_set.add(user)
+
+        return redirect("customer_list")
+
+    users = User.objects.exclude(is_superuser=True)
+
+    return render(request, "main/create_seller.html", {
+        "users": users,
+    })
 
 @login_required
 def admin_dashboard(request):
     return render(request, 'main/admin_dashboard.html')
 
+
 def create_location(request):
     if request.method == 'POST':
-        form = RentalLocationForm(request.POST)
+        form = LocationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('admin_dashboard')
+            return redirect('create_location')
+
     else:
-        form = RentalLocationForm()
-    return render(request, 'main/create_location.html', {'form': form})
+        form = LocationForm()
+
+    stores = RentalLocation.objects.all()
+
+    return render(request, 'main/create_location.html', {'form': form, 'stores': stores})
 
 @login_required
 @user_passes_test(is_admin)

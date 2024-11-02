@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Управление каруселью{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Управление каруселью</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Добавить изображение</button>
+    </form>
+
+    <h3 class="mt-4">Существующие изображения</h3>
+    <ul>
+        {% for image in carousel_images %}
+            <li>
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" width="100">
+                {{ image.title }} - <a href="{% url 'edit_carousel_image' image.id %}">Редактировать</a>
+                <form action="{% url 'delete_carousel_image' image.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

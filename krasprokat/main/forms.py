@@ -1,7 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category
+from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, CarouselImage, NewsItem
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -23,6 +24,10 @@ class InventoryItemForm(forms.ModelForm):
             "price_per_day": "Цена за день",
             "image": "Изображение",
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].required = False
 
 class InventoryStockForm(forms.ModelForm):
     class Meta:
@@ -130,9 +135,18 @@ class LocationForm(forms.ModelForm):
 class RentalLocationForm(forms.ModelForm):
     class Meta:
         model = RentalLocation
-        fields = ['name', 'address', 'phone']
+        fields = ['address', 'phone']
         labels = {
-            'name': 'Название магазина',
             'address': 'Адрес',
             'phone': 'Телефон',
         }
+
+class CarouselImageForm(forms.ModelForm):
+    class Meta:
+        model = CarouselImage
+        fields = ['title', 'description', 'image', 'order']
+
+class NewsItemForm(forms.ModelForm):
+    class Meta:
+        model = NewsItem
+        fields = ['title', 'date', 'description', 'category']

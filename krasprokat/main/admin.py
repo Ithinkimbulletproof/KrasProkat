@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile
+from .models import (InventoryItem, InventoryStock, RentalOrder,
+                     Customer, RentalLocation, Profile, NewsItem, CarouselImage)
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
@@ -41,3 +42,13 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ("role",)
     search_fields = ("user__username",)
     ordering = ("user",)
+
+@admin.register(CarouselImage)
+class CarouselImageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'order']
+    ordering = ['order']
+
+@admin.register(NewsItem)
+class NewsItemAdmin(admin.ModelAdmin):
+    list_display = ['title', 'date', 'category']
+    list_filter = ['category', 'date']

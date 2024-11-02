@@ -5,11 +5,38 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Создать магазин</h2>
+
+    <!-- Форма создания магазина -->
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Отмена</a>
     </form>
+
+    <!-- Список существующих магазинов -->
+    <h3 class="mt-5">Существующие магазины</h3>
+    {% if stores %}
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Адрес</th>
+                    <th>Телефон</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for store in stores %}
+                    <tr>
+                        <td>{{ store.name }}</td>
+                        <td>{{ store.address }}</td>
+                        <td>{{ store.phone }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted mt-3">Магазины отсутствуют.</p>
+    {% endif %}
 </div>
 {% endblock %}

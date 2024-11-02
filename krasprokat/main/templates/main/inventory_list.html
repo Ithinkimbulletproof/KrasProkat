@@ -1,15 +1,9 @@
 {% extends 'main/base.html' %}
-{% block title %}Список инвентаря{% endblock %}
+{% block title %}{{ location.name }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-  <h1>Инвентарь</h1>
-
-  {% if can_add_inventory %}
-    <div class="d-flex justify-content-end mb-3">
-      <a href="{% url 'add_inventory_item' %}" class="btn btn-primary">Добавить инструмент</a>
-    </div>
-  {% endif %}
+  <h1>{{ location.name }}</h1>
 
   <table class="table table-striped table-hover">
     <thead class="table-dark">
@@ -18,22 +12,19 @@
         <th>Категория</th>
         <th>Цена за день</th>
         <th>В наличии / Всего</th>
-        <th>Действия</th>
       </tr>
     </thead>
     <tbody>
-      {% for item in items %}
+      {% for stock in stocks %}
       <tr>
-        <td>{{ item.name }}</td>
-        <td>{{ item.category }}</td>
-        <td>{{ item.price_per_day }} ₽</td>
-        <td>{{ item.available_quantity }} / {{ item.total_quantity }}</td>
-        <td>
-          <a href="{% url 'inventory_detail' item.pk %}" class="btn btn-sm btn-info">Просмотр</a>
-          {% if can_update_inventory %}
-          <a href="{% url 'update_inventory_stock' item.pk %}" class="btn btn-sm btn-warning">Обновить</a>
-          {% endif %}
-        </td>
+        <td>{{ stock.item.name }}</td>
+        <td>{{ stock.item.category }}</td>
+        <td>{{ stock.item.price_per_day }} ₽</td>
+        <td>{{ stock.available_quantity }} / {{ stock.total_quantity }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4">Инвентарь не найден.</td>
       </tr>
       {% endfor %}
     </tbody>

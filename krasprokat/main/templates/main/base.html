@@ -45,16 +45,16 @@
                     <img class="me-2" height="32" role="img" aria-label="Bootstrap" src="{% static 'krasprokat-logo.svg' %}" alt="Logo">
                 </a>
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 d-flex flex-column flex-md-row">
                     <li><a href="/" class="nav-link px-2 {% if request.path == '/' %}text-warning{% else %}text-white{% endif %}">Главная</a></li>
-                    <li><a href="{% url 'inventory_location_choice' %}" class="nav-link px-2 {% if request.path == '/inventory/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
+                    <li><a href="{% url 'inventory_location_choice' %}" class="nav-link px-2 {% if request.path == '/inventory/location/' %}text-warning{% else %}text-white{% endif %}">Инструмент</a></li>
                     <li><a href="{% url 'rental_terms' %}" class="nav-link px-2 {% if request.path == '/rental-terms/' %}text-warning{% else %}text-white{% endif %}">Условия проката</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Ремонт</a></li>
                     <li><a href="#" class="nav-link px-2 text-white">Спецтехника</a></li>
 
                     {% if request.user.is_authenticated %}
                         {% if request.user.profile.role == 'admin' %}
-                            <li><a href="{% url 'admin_dashboard' %}" class="nav-link px-2 text-warning">Управление</a></li>
+                            <li><a href="{% url 'admin_dashboard' %}" class="nav-link px-2 text-warning">Панель администратора</a></li>
                         {% elif request.user.profile.role == 'seller' %}
                             <li><a href="{% url 'seller_dashboard' %}" class="nav-link px-2 text-warning">Панель продавца</a></li>
                         {% endif %}

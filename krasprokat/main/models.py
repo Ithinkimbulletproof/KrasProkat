@@ -22,7 +22,7 @@ class Category(models.Model):
         return self.name
 
 class RentalLocation(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Название")
+    name = models.CharField(max_length=100, verbose_name="Название магазина")
     address = models.CharField(max_length=200, verbose_name="Адрес")
     phone = models.CharField(
         max_length=20,
@@ -51,7 +51,7 @@ class InventoryItem(models.Model):
 
 class InventoryStock(models.Model):
     item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, verbose_name="Товар")
-    location = models.ForeignKey(RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин")
+    location = models.ForeignKey(RentalLocation, on_delete=models.SET_NULL, verbose_name="Магазин", null=True)
     total_quantity = models.PositiveIntegerField(default=0, verbose_name="Общее количество")
     available_quantity = models.PositiveIntegerField(default=0, verbose_name="Доступное количество")
 
@@ -119,3 +119,24 @@ class RentalOrder(models.Model):
 
     def __str__(self):
         return f"{self.item.name} - {self.customer.name}"
+
+class CarouselImage(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='carousel/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+class NewsItem(models.Model):
+    title = models.CharField(max_length=100)
+    date = models.DateField()
+    description = models.TextField()
+    category = models.CharField(max_length=50, choices=[('news', 'Новости'), ('promo', 'Акции')])
+
+    def __str__(self):
+        return f"{self.title} ({self.category})"

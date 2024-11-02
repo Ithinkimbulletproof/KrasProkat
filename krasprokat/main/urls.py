@@ -9,13 +9,13 @@ urlpatterns = [
 
     # Инвентарь
     path("inventory_add/", views.inventory_add, name="inventory_add"),  # Добавление инвентаря
-    path("inventory/", views.inventory_location_choice, name="inventory_location_choice"),  # Выбор магазина
-    path("inventory/<int:location_id>/", views.inventory_list, name="inventory_list_by_location"),  # Список инвентаря для выбранного магазина
     path("inventory/detail/<int:pk>/", views.inventory_detail, name="inventory_detail"),  # Детали инвентаря
     path('inventory/update/<int:pk>/', views.inventory_update, name='inventory_update'),  # Обновление инвентаря
     path('inventory/delete/<int:pk>/', views.inventory_delete, name='inventory_delete'),  # Удаление инвентаря
 
     # Клиенты
+    path('inventory/location/', views.inventory_location_choice, name='inventory_location_choice'),  # Выбор магазина для просмотра инвентаря
+    path('inventory/<int:location_id>/', views.inventory_list, name='inventory_list'),  # Просмотр инвентаря на выбранном магазине
     path("customers/", views.customer_list, name="customer_list"),  # Список клиентов
 
     # Заказы
@@ -39,4 +39,6 @@ urlpatterns = [
     path("categories/add/", views.category_create, name="category_create"),  # Создание категории
     path("categories/update/<int:pk>/", views.category_update, name="category_update"),  # Обновление категории
     path("categories/delete/<int:pk>/", views.category_delete, name="category_delete"),  # Удаление категории
+    path('manage-carousel/', views.manage_carousel, name='manage_carousel'),  # Управление каруселью
+    path('manage-news/', views.manage_news, name='manage_news'),  # Управление новостями
 ]

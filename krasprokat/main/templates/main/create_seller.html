@@ -23,30 +23,47 @@
             </ul>
         </div>
     {% endif %}
-    <div class="mb-3">
-      {{ form.username.label_tag }}
-      {{ form.username }}
-      {% if form.username.errors %}
-          <div class="text-danger">{{ form.username.errors }}</div>
-      {% endif %}
+
+    <div class="mb-3 position-relative">
+      <label for="user_search" class="form-label">Поиск и выбор пользователя</label>
+      <input type="text" id="user_search" name="user" class="form-control" placeholder="Введите имя пользователя или email" oninput="filterUsers()">
+      <div id="dropdown" class="dropdown-menu show w-100 mt-1" style="display: none;">
+          {% for user in users %}
+              <button type="button" class="dropdown-item user-option" onclick="selectUser('{{ user.id }}', '{{ user.username }} ({{ user.email }})')">{{ user.username }} ({{ user.email }})</button>
+          {% endfor %}
+      </div>
+      <input type="hidden" id="selected_user_id" name="user_id">
     </div>
-    <div class="mb-3">
-      {{ form.password.label_tag }}
-      {{ form.password }}
-      {% if form.password.errors %}
-          <div class="text-danger">{{ form.password.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      {{ form.email.label_tag }}
-      {{ form.email }}
-      {% if form.email.errors %}
-          <div class="text-danger">{{ form.email.errors }}</div>
-      {% endif %}
-    </div>
+
     <button type="submit" class="btn btn-primary">Создать продавца</button>
   </form>
-
-  <a href="{% url 'customer_list' %}" class="btn btn-secondary mt-3">Назад к списку клиентов</a>
 </div>
+
+<script>
+function filterUsers() {
+    const searchInput = document.getElementById('user_search').value.toLowerCase();
+    const dropdown = document.getElementById('dropdown');
+    const userOptions = document.querySelectorAll('.user-option');
+    let hasVisibleOption = false;
+
+    userOptions.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        if (text.includes(searchInput)) {
+            option.style.display = 'block';
+            hasVisibleOption = true;
+        } else {
+            option.style.display = 'none';
+        }
+    });
+
+    dropdown.style.display = hasVisibleOption ? 'block' : 'none';
+}
+
+function selectUser(userId, userDisplay) {
+    document.getElementById('user_search').value = userDisplay;
+    document.getElementById('selected_user_id').value = userId;
+    document.getElementById('dropdown').style.display = 'none';
+}
+</script>
+
 {% endblock %}
