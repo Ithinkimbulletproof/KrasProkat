@@ -1,0 +1,76 @@
+{% extends "main/base.html" %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h2>Панель администратора</h2>
+    </div>
+</div>
+
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-3 text-center">
+            <a href="{% url 'c_and_i_management' %}" class="btn btn-primary w-100">Добавить товар</a>
+        </div>
+        <div class="col-md-3 text-center">
+            <a href="{% url 'create_seller' %}" class="btn btn-primary w-100">Добавить продавца</a>
+        </div>
+        <div class="col-md-3 text-center">
+            <a href="{% url 'create_location' %}" class="btn btn-primary w-100">Создать магазин</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-3 text-center">
+            <a class="btn btn-primary w-100">Пока заглушка</a>
+        </div>
+        <div class="col-md-3 text-center">
+            <a class="btn btn-primary w-100">Ещё одна заглушка</a>
+        </div>
+        <div class="col-md-3 text-center">
+            <a class="btn btn-primary w-100">И ещё одна заглушка</a>
+        </div>
+    </div>
+</div>
+
+
+    <div class="mt-5">
+            <div class="container mt-3">
+                <div class="text-center">
+                    <h2>Активные заказы</h2>
+                </div>
+            </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Клиент</th>
+                    <th>Магазин</th>
+                    <th>Дата начала</th>
+                    <th>Дата окончания</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in active_rental_orders %}
+                <tr>
+                    <td>{{ order.item.name }}</td>
+                    <td>{{ order.customer.name }}</td>
+                    <td>{{ order.location.name }}</td>
+                    <td>{{ order.rental_start_date }}</td>
+                    <td>{{ order.rental_end_date }}</td>
+                    <td>{% if order.is_active %}Активный{% else %}Завершён{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Нет активных заказов</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

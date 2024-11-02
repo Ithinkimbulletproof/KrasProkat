@@ -1,0 +1,15 @@
+{% extends "main/base.html" %}
+
+{% block title %}Добавить инвентарь{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Добавить новый инвентарь</h1>
+    <form method="post" action="{% url 'inventory_add' %}" enctype="multipart/form-data" class="mt-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Добавить инвентарь</button>
+        <a href="{% url 'inventory_add' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

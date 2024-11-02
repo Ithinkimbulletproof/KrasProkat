@@ -1,0 +1,60 @@
+{% extends "main/base.html" %}
+
+{% block title %}Изменить инвентарь: {{ inventory_item.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Изменить инвентарь: {{ inventory_item.name }}</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+
+        <div class="form-group">
+            {{ form.category.label_tag }}
+            {{ form.category }}
+        </div>
+
+        <div class="form-group">
+            {{ form.price_per_day.label_tag }}
+            {{ form.price_per_day }}
+        </div>
+
+        <div class="form-group">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+
+        <h3 class="mt-4">Обновить запасы</h3>
+
+        <div class="form-group mb-3">
+            <label for="available_quantity" class="form-label">Текущее количество</label>
+            <input type="number" class="form-control" id="available_quantity" value="{{ inventory_item.available_quantity }}" disabled>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="update_quantity" class="form-label">Количество для обновления</label>
+            <input type="number" class="form-control" id="update_quantity" name="update_quantity" placeholder="Введите значение" required>
+            <small class="form-text text-muted">Введите положительное значение для увеличения или отрицательное для уменьшения.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{% url 'c_and_i_management' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+
+    {% if error %}
+        <div class="alert alert-danger mt-3">
+            {{ error }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

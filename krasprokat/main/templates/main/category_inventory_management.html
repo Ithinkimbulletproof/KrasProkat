@@ -1,0 +1,80 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление категориями и инвентарем{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Управление категориями и инвентарем</h1>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Создать категорию</h3>
+            <a href="{% url 'category_create' %}" class="btn btn-primary">Создать категорию</a>
+
+            <h3 class="mt-4">Категории</h3>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Описание</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.description }}</td>
+                            <td>
+                                <a href="{% url 'category_update' category.pk %}" class="btn btn-warning btn-sm">Изменить</a>
+                                <a href="{% url 'category_delete' category.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">Категорий пока нет.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+                <h3>Добавить инвентарь</h3>
+                <a href="{% url 'inventory_add' %}" class="btn btn-primary">Добавить инвентарь</a>
+
+
+            <h3 class="mt-4">Инвентарь</h3>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Описание</th>
+                        <th>Цена за день</th>
+                        <th>Категория</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory_items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.price_per_day }}</td>
+                            <td>{{ item.category.name }}</td>
+                            <td>
+                                <a href="{% url 'inventory_update' item.pk %}" class="btn btn-warning btn-sm">Изменить</a>
+                                <a href="{% url 'inventory_delete' item.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">Инвентаря пока нет.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
