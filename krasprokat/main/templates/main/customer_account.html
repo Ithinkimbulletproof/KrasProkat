@@ -9,7 +9,8 @@
   <button id="editButton" class="btn mb-3" style="background-color: #ffbe2c; color: white;">Редактировать</button>
 
   <div id="viewProfile" class="card p-3">
-    <p><strong>Имя:</strong> {{ customer.name }}</p>
+    <p><strong>Имя:</strong> {{ customer.first_name }}</p>
+    <p><strong>Фамилия:</strong> {{ customer.last_name }}</p>
     <p><strong>Email:</strong> {{ customer.email }}</p>
     <p><strong>Телефон:</strong> {{ customer.phone }}</p>
     <p><strong>Адрес:</strong> {{ customer.address }}</p>
@@ -19,8 +20,12 @@
     {% csrf_token %}
     <div class="card p-3">
       <div class="mb-3">
-        <label for="name" class="form-label">Имя:</label>
-        <input type="text" class="form-control" id="name" name="name" value="{{ customer.name }}">
+        <label for="first_name" class="form-label">Имя:</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ customer.first_name }}">
+      </div>
+      <div class="mb-3">
+        <label for="last_name" class="form-label">Фамилия:</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ customer.last_name }}">
       </div>
       <div class="mb-3">
         <label for="email" class="form-label">Email:</label>

@@ -19,16 +19,16 @@ class InventoryStockAdmin(admin.ModelAdmin):
 @admin.register(RentalOrder)
 class RentalOrderAdmin(admin.ModelAdmin):
     list_display = ("item", "customer", "location", "rental_start_date", "rental_end_date", "total_price", "is_active")
-    search_fields = ("item__name", "customer__name", "location__name")
+    search_fields = ("item__name", "customer__first_name", "customer__last_name", "location__name")
     list_filter = ("location", "is_active")
     date_hierarchy = "rental_start_date"
     ordering = ("-rental_start_date",)
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("name", "phone", "email")
-    search_fields = ("name", "phone", "email")
-    ordering = ("name",)
+    list_display = ("first_name", "last_name", "phone", "email")
+    search_fields = ("first_name", "last_name", "phone", "email")
+    ordering = ("first_name",)
 
 @admin.register(RentalLocation)
 class RentalLocationAdmin(admin.ModelAdmin):

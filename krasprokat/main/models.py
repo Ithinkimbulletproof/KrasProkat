@@ -3,24 +3,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
-class Profile(models.Model):
-    ROLE_CHOICES = [('admin', 'Админ'), ('seller', 'Продавец'), ('customer', 'Покупатель')]
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
-
-    def __str__(self):
-        return f"{self.user.username} ({self.get_role_display()})"
-
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name="Категория")
-    description = models.TextField(blank=True, verbose_name="Описание")
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
 class RentalLocation(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название магазина")
     address = models.CharField(max_length=200, verbose_name="Адрес")
@@ -29,6 +11,36 @@ class RentalLocation(models.Model):
         verbose_name="Телефон",
         validators=[RegexValidator(regex=r"^\+?[1-9]\d{1,14}$")],
     )
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+class Profile(models.Model):
+    ROLE_CHOICES = [('admin', 'Админ'), ('seller', 'Продавец'), ('customer', 'Покупатель')]
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
+    location = models.ForeignKey(
+        RentalLocation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Магазин",
+        help_text="Привязанный магазин для продавца"
+    )
+    first_name = models.CharField(max_length=30, blank=True, verbose_name="Имя")
+    last_name = models.CharField(max_length=30, blank=True, verbose_name="Фамилия")
+    phone = models.CharField(max_length=15, blank=True, verbose_name="Телефон")
+    address = models.CharField(max_length=255, blank=True, verbose_name="Адрес")
+
+    def __str__(self):
+        return f"{self.user.username} ({self.get_role_display()})"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Категория")
+    description = models.TextField(blank=True, verbose_name="Описание")
 
     class Meta:
         ordering = ["name"]
@@ -69,20 +81,21 @@ class InventoryStock(models.Model):
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name="customer_profile")
-    name = models.CharField(max_length=100, verbose_name="Имя")
+    first_name = models.CharField(max_length=100, verbose_name="Имя")
+    last_name = models.CharField(max_length=100, verbose_name="Фамилия")
     phone = models.CharField(
         max_length=20,
         verbose_name="Телефон",
         validators=[RegexValidator(regex=r"^\+?[1-9]\d{1,14}$")],
     )
-    email = models.EmailField(blank=True, verbose_name="Email", unique=True)
+    email = models.EmailField(verbose_name="Email", unique=True)
     address = models.TextField(blank=True, verbose_name="Адрес")
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["first_name", "last_name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.last_name}"
 
 class RentalOrder(models.Model):
     item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, verbose_name="Товар")
@@ -118,7 +131,7 @@ class RentalOrder(models.Model):
             super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.item.name} - {self.customer.name}"
+        return f"{self.item.name} - {self.customer.first_name} {self.customer.last_name}"
 
 class CarouselImage(models.Model):
     title = models.CharField(max_length=100)

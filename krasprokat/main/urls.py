@@ -32,13 +32,15 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(next_page='home'), name="logout"),  # Выход
 
     # Инструменты админа
-    path("c_and_i_management", views.category_inventory_management, name="c_and_i_management"),  # Добавление инвентаря
-    path("account/create_seller/", views.create_seller, name="create_seller"),  # Создание продавца
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Панель админа
-    path('create-location/', views.create_location, name='create_location'),  # Создание магазина
-    path("categories/add/", views.category_create, name="category_create"),  # Создание категории
-    path("categories/update/<int:pk>/", views.category_update, name="category_update"),  # Обновление категории
-    path("categories/delete/<int:pk>/", views.category_delete, name="category_delete"),  # Удаление категории
-    path('manage-carousel/', views.manage_carousel, name='manage_carousel'),  # Управление каруселью
-    path('manage-news/', views.manage_news, name='manage_news'),  # Управление новостями
+    path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),  # Панель админа
+    path("admin_dashboard/c_and_i_management", views.category_inventory_management, name="c_and_i_management"),  # Управление категориями и инвентарём
+    path("admin_dashboard/create_seller/", views.create_seller, name="create_seller"),  # Создание продавца
+    path("admin_dashboard/edit_seller/<int:user_id>/", views.edit_seller, name="edit_seller"),  # Редактирование продавца
+    path("admin_dashboard/delete_seller/", views.delete_seller, name="delete_seller"),  # Удаление продавца
+    path('admin_dashboard/create-location/', views.create_location, name='create_location'),  # Создание магазина
+    path("admin_dashboard/categories_add/", views.category_create, name="category_create"),  # Создание категории
+    path("admin_dashboard/categories_update/<int:pk>/", views.category_update, name="category_update"),  # Обновление категории
+    path("admin_dashboard/categories_delete/<int:pk>/", views.category_delete, name="category_delete"),  # Удаление категории
+    path('admin_dashboard/manage-carousel/', views.manage_carousel, name='manage_carousel'),  # Управление каруселью
+    path('admin_dashboard/manage-news/', views.manage_news, name='manage_news'),  # Управление новостями
 ]

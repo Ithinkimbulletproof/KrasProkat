@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -230,19 +231,32 @@ def user_login(request):
             return render(request, "main/login.html", {"error": error_message})
     return render(request, "main/login.html")
 
+
 @login_required
 def customer_account(request):
     customer, created = Customer.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        customer.name = request.POST.get("name")
-        customer.email = request.POST.get("email")
-        customer.phone = request.POST.get("phone")
-        customer.address = request.POST.get("address")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        address = request.POST.get("address")
+
+        if first_name:
+            customer.first_name = first_name
+        if last_name:
+            customer.last_name = last_name
+
+        customer.email = email
+        customer.phone = phone
+        customer.address = address
         customer.save()
+
         return redirect("customer_account")
 
     return render(request, "main/customer_account.html", {"customer": customer})
+
 
 @login_required
 def customer_rentals(request):
@@ -250,23 +264,89 @@ def customer_rentals(request):
     rentals = RentalOrder.objects.filter(customer=customer)
     return render(request, "main/customer_rentals.html", {"rentals": rentals})
 
+
 @login_required
 @user_passes_test(is_admin)
 def create_seller(request):
     if request.method == "POST":
-        user_id = request.POST.get("user")
-        user = User.objects.get(id=user_id)
+        user_id = request.POST.get("user_id")
+        location_id = request.POST.get("location_id")
 
-        seller_group = Group.objects.get(name='Продавцы')
-        seller_group.user_set.add(user)
+        if not user_id or not location_id:
+            return redirect("create_seller")
 
-        return redirect("customer_list")
+        try:
+            user = User.objects.get(id=int(user_id))
+            location = RentalLocation.objects.get(id=int(location_id))
+        except (User.DoesNotExist, RentalLocation.DoesNotExist, ValueError):
+            return redirect("create_seller")
 
-    users = User.objects.exclude(is_superuser=True)
+        profile, created = Profile.objects.get_or_create(user=user)
+
+        profile.role = 'seller'
+        profile.location = location
+        profile.save()
+
+        return redirect("create_seller")
+
+    users = User.objects.exclude(is_superuser=True).exclude(profile__role='admin')
+    locations = RentalLocation.objects.all()
+    sellers = Profile.objects.filter(role='seller')
 
     return render(request, "main/create_seller.html", {
         "users": users,
+        "locations": locations,
+        "sellers": sellers,
     })
+
+@login_required
+@user_passes_test(is_admin)
+def edit_seller(request, user_id):
+    if request.method == "POST":
+        location_id = request.POST.get("location_id")
+
+        try:
+            profile = Profile.objects.get(user_id=user_id)
+            location = RentalLocation.objects.get(id=location_id)
+            profile.location = location
+            profile.save()
+            return redirect("create_seller")
+        except (Profile.DoesNotExist, RentalLocation.DoesNotExist):
+            return render(request, "main/edit_seller.html", {
+                'error_message': 'Профиль или магазин не найдены.',
+                'user_id': user_id,
+                'locations': RentalLocation.objects.all(),
+                'profile': profile
+            })
+
+    try:
+        profile = Profile.objects.get(user_id=user_id)
+    except Profile.DoesNotExist:
+        return render(request, "main/edit_seller.html", {
+            'error_message': 'Профиль не найден.',
+        })
+
+    return render(request, "main/edit_seller.html", {
+        'profile': profile,
+        'locations': RentalLocation.objects.all(),
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def delete_seller(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+
+        try:
+            profile = Profile.objects.get(user_id=user_id)
+            profile.delete()
+            messages.success(request, "Продавец успешно удален.")
+        except Profile.DoesNotExist:
+            messages.error(request, "Профиль продавца не найден.")
+        except Exception as e:
+            messages.error(request, f"Произошла ошибка: {str(e)}")
+
+    return redirect("create_seller")
 
 @login_required
 def admin_dashboard(request):

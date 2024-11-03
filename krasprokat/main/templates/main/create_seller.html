@@ -25,18 +25,46 @@
     {% endif %}
 
     <div class="mb-3 position-relative">
-      <label for="user_search" class="form-label">Поиск и выбор пользователя</label>
+      <label for="user_search" class="form-label">Поиск и выбор покупателя для назначения продавцом</label>
       <input type="text" id="user_search" name="user" class="form-control" placeholder="Введите имя пользователя или email" oninput="filterUsers()">
       <div id="dropdown" class="dropdown-menu show w-100 mt-1" style="display: none;">
           {% for user in users %}
-              <button type="button" class="dropdown-item user-option" onclick="selectUser('{{ user.id }}', '{{ user.username }} ({{ user.email }})')">{{ user.username }} ({{ user.email }})</button>
+              <button type="button" class="dropdown-item user-option" onclick="selectUser('{{ user.id }}', '{{ user.username }} ({{ user.email }}) {% if user.profile.first_name %}({{ user.profile.first_name }} {{ user.profile.last_name }}){% endif %} ')">{{ user.username }} ({{ user.email }}) {% if user.profile.first_name %}({{ user.profile.first_name }} {{ user.profile.last_name }}){% endif %}</button>
           {% endfor %}
       </div>
       <input type="hidden" id="selected_user_id" name="user_id">
     </div>
 
+    <div class="mb-3">
+      <label for="location" class="form-label">Выберите магазин</label>
+      <select id="location" name="location_id" class="form-control">
+          {% for location in locations %}
+              <option value="{{ location.id }}">{{ location.name }}</option>
+          {% endfor %}
+      </select>
+    </div>
+
     <button type="submit" class="btn btn-primary">Создать продавца</button>
   </form>
+
+  <hr>
+
+  <h3 class="mt-4">Список продавцов</h3>
+  <ul>
+      {% for seller in sellers %}
+          <li>
+              {{ seller.user.username }} {% if seller.user.profile.first_name %}({{ seller.user.profile.first_name }} {{ seller.user.profile.last_name }}){% endif %} — Магазин: {{ seller.location.name }}
+              <a href="{% url 'edit_seller' seller.user.id %}" class="btn btn-warning btn-sm">Редактировать</a>
+              <form action="{% url 'delete_seller' %}" method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ seller.user.id }}">
+                  <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+              </form>
+          </li>
+      {% empty %}
+          <li>Нет зарегистрированных продавцов.</li>
+      {% endfor %}
+  </ul>
 </div>
 
 <script>
@@ -64,6 +92,15 @@ function selectUser(userId, userDisplay) {
     document.getElementById('selected_user_id').value = userId;
     document.getElementById('dropdown').style.display = 'none';
 }
+
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('dropdown');
+    const searchInput = document.getElementById('user_search');
+
+    if (!dropdown.contains(event.target) && event.target !== searchInput) {
+        dropdown.style.display = 'none';
+    }
+});
 </script>
 
 {% endblock %}
