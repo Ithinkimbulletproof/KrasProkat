@@ -1,10 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse
+
 from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, NewsItem, CarouselImage
 from .forms import InventoryItemForm, RentalOrderForm, CustomerForm, RentalLocationForm, CategoryForm, LocationForm, CarouselImageForm, NewsItemForm
 
@@ -400,3 +403,40 @@ def category_delete(request, pk):
         category.delete()
         return redirect('c_and_i_management')
     return render(request, 'main/category_confirm_delete.html', {'category': category})
+
+@user_passes_test(is_admin)
+def add_inventory_to_store(request, location_id):
+    location = get_object_or_404(RentalLocation, id=location_id)
+    inventory_items = InventoryItem.objects.all()
+
+    inventory_stocks = InventoryStock.objects.filter(location=location).select_related('item')
+
+    if request.method == 'POST':
+        item_id = request.POST.get('item_id')
+        action = request.POST.get('action')
+
+        stock, created = InventoryStock.objects.get_or_create(item_id=item_id, location=location)
+
+        if action == 'increase':
+            stock.total_quantity += 1
+            stock.available_quantity += 1
+        elif action == 'decrease':
+            if stock.available_quantity > 0:
+                stock.available_quantity -= 1
+            stock.total_quantity -= 1
+
+        try:
+            stock.full_clean()
+            stock.save()
+            return redirect(reverse('store_inventory', args=[location_id]))
+        except ValidationError as e:
+            error_message = e.messages[0]
+
+    stock_dict = {stock.item.id: stock for stock in inventory_stocks}
+
+    return render(request, 'main/add_inventory_to_store.html', {
+        'location': location,
+        'inventory_items': inventory_items,
+        'stock_dict': stock_dict,
+        'error_message': error_message if 'error_message' in locals() else None
+    })

@@ -38,6 +38,7 @@ urlpatterns = [
     path("admin_dashboard/edit_seller/<int:user_id>/", views.edit_seller, name="edit_seller"),  # Редактирование продавца
     path("admin_dashboard/delete_seller/", views.delete_seller, name="delete_seller"),  # Удаление продавца
     path('admin_dashboard/create-location/', views.create_location, name='create_location'),  # Создание магазина
+    path('store/<int:location_id>/add_inventory/', views.add_inventory_to_store, name='add_inventory_to_store'),  # Добавление товара в магазин
     path("admin_dashboard/categories_add/", views.category_create, name="category_create"),  # Создание категории
     path("admin_dashboard/categories_update/<int:pk>/", views.category_update, name="category_update"),  # Обновление категории
     path("admin_dashboard/categories_delete/<int:pk>/", views.category_delete, name="category_delete"),  # Удаление категории

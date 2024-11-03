@@ -1,0 +1,45 @@
+{% extends "main/base.html" %}
+
+{% block title %}Управление инвентарем в {{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Управление инвентарем в магазине: {{ location.name }}</h2>
+
+    {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+    {% endif %}
+
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Инвентарь</th>
+                <th>Доступное количество</th>
+                <th>Общее количество</th>
+                <th>Изменить количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory_items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    {% with stock=stock_dict|get_item:item.id %}
+                        <td>{{ stock.available_quantity|default:0 }}</td>
+                        <td>{{ stock.total_quantity|default:0 }}</td>
+                    {% endwith %}
+                    <td>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <button type="submit" name="action" value="decrease" class="btn btn-danger btn-sm">-</button>
+                            <button type="submit" name="action" value="increase" class="btn btn-success btn-sm">+</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'create_location' %}" class="btn btn-secondary mt-4">Назад</a>
+</div>
+{% endblock %}

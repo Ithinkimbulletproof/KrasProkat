@@ -6,7 +6,6 @@
 <div class="container mt-4">
     <h2>Создать магазин</h2>
 
-    <!-- Форма создания магазина -->
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -14,7 +13,6 @@
         <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Отмена</a>
     </form>
 
-    <!-- Список существующих магазинов -->
     <h3 class="mt-5">Существующие магазины</h3>
     {% if stores %}
         <table class="table table-striped mt-3">
@@ -23,6 +21,7 @@
                     <th>Название</th>
                     <th>Адрес</th>
                     <th>Телефон</th>
+                    <th>Действия</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +30,9 @@
                         <td>{{ store.name }}</td>
                         <td>{{ store.address }}</td>
                         <td>{{ store.phone }}</td>
+                        <td>
+                            <a href="{% url 'add_inventory_to_store' store.id %}" class="btn btn-primary btn-sm">Управление инвентарем</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
