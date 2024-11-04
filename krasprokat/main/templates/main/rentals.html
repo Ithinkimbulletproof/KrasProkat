@@ -1,0 +1,35 @@
+{% extends 'main/base.html' %}
+{% block title %}История аренды{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>История аренды</h1>
+
+    {% if rental_orders %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Инструмент</th>
+                    <th>Место аренды</th>
+                    <th>Дата начала</th>
+                    <th>Дата окончания</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in rental_orders %}
+                    <tr>
+                        <td>{{ order.item.name }}</td>
+                        <td>{{ order.location.name }}</td>
+                        <td>{{ order.rental_start_date }}</td>
+                        <td>{{ order.rental_end_date }}</td>
+                        <td>{% if order.is_active %}Активна{% else %}Завершена{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>История аренды пуста.</p>
+    {% endif %}
+</div>
+{% endblock %}

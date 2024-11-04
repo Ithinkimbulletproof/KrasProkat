@@ -1,0 +1,58 @@
+{% extends "main/base.html" %}
+{% block title %}Панель продавца{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Панель продавца - {{ location.name }}</h2>
+
+  <h3>Запасы инвентаря</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Название товара</th>
+        <th>Доступное количество</th>
+        <th>Общее количество</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for stock in inventory %}
+      <tr>
+        <td>{{ stock.item.name }}</td>
+        <td>{{ stock.available_quantity }}</td>
+        <td>{{ stock.total_quantity }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">Инвентарь отсутствует.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Возвраты на сегодня</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Клиент</th>
+        <th>Товар</th>
+        <th>Дата начала аренды</th>
+        <th>Дата окончания аренды</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in today_returns %}
+      <tr>
+        <td>{{ order.customer.first_name }} {{ order.customer.last_name }}</td>
+        <td>{{ order.item.name }}</td>
+        <td>{{ order.rental_start_date }}</td>
+        <td>{{ order.rental_end_date }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4">Возвратов на сегодня нет.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

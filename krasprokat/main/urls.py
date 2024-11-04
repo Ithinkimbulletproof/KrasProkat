@@ -12,19 +12,15 @@ urlpatterns = [
     path("inventory/detail/<int:pk>/", views.inventory_detail, name="inventory_detail"),  # Детали инвентаря
     path('inventory/update/<int:pk>/', views.inventory_update, name='inventory_update'),  # Обновление инвентаря
     path('inventory/delete/<int:pk>/', views.inventory_delete, name='inventory_delete'),  # Удаление инвентаря
+    path('inventory/confirm_booking/<int:location_id>/<int:stock_id>/', views.confirm_booking, name='confirm_booking'),  # Подтверждение брони
 
     # Клиенты
     path('inventory/location/', views.inventory_location_choice, name='inventory_location_choice'),  # Выбор магазина для просмотра инвентаря
     path('inventory/<int:location_id>/', views.inventory_list, name='inventory_list'),  # Просмотр инвентаря на выбранном магазине
-    path("customers/", views.customer_list, name="customer_list"),  # Список клиентов
-
-    # Заказы
-    path("orders/", views.rental_order_list, name="rental_order_list"),  # Список заказов
-    path("orders/create/", views.create_rental_order, name="create_rental_order"),  # Создание заказа
 
     # Личный кабинет покупателя
     path("account/", views.customer_account, name="customer_account"),  # Личный кабинет покупателя
-    path("account/rentals/", views.customer_rentals, name="customer_rentals"),  # История броней
+    path("rentals", views.rentals, name="rentals"),  # История броней
 
     # Регистрация и вход
     path("register/", views.register, name="register"),  # Регистрация
@@ -44,4 +40,7 @@ urlpatterns = [
     path("admin_dashboard/categories_delete/<int:pk>/", views.category_delete, name="category_delete"),  # Удаление категории
     path('admin_dashboard/manage-carousel/', views.manage_carousel, name='manage_carousel'),  # Управление каруселью
     path('admin_dashboard/manage-news/', views.manage_news, name='manage_news'),  # Управление новостями
+
+    # Инструменты продавца
+    path('seller_dashboard/', views.seller_dashboard, name='seller_dashboard'),  # Панель продавца
 ]

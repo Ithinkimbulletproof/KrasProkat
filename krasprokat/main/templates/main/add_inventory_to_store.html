@@ -1,6 +1,6 @@
 {% extends "main/base.html" %}
-
 {% block title %}Управление инвентарем в {{ location.name }}{% endblock %}
+{% load main.inventory_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -9,6 +9,10 @@
     {% if error_message %}
         <div class="alert alert-danger">{{ error_message }}</div>
     {% endif %}
+
+    <form id="inventory-form">
+        {% csrf_token %}
+    </form>
 
     <table class="table table-striped mt-4">
         <thead>
@@ -23,23 +27,60 @@
             {% for item in inventory_items %}
                 <tr>
                     <td>{{ item.name }}</td>
-                    {% with stock=stock_dict|get_item:item.id %}
-                        <td>{{ stock.available_quantity|default:0 }}</td>
-                        <td>{{ stock.total_quantity|default:0 }}</td>
-                    {% endwith %}
+                    <td id="available-{{ item.id }}">
+                        {% with stock=stock_dict|get_item:item.id %}
+                            {% if stock %}
+                                {{ stock.available_quantity }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td id="total-{{ item.id }}">
+                        {% with stock=stock_dict|get_item:item.id %}
+                            {% if stock %}
+                                {{ stock.total_quantity }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        {% endwith %}
+                    </td>
                     <td>
-                        <form method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <button type="submit" name="action" value="decrease" class="btn btn-danger btn-sm">-</button>
-                            <button type="submit" name="action" value="increase" class="btn btn-success btn-sm">+</button>
-                        </form>
+                        <button onclick="updateQuantity('{{ item.id }}', 'decrease')" class="btn btn-danger btn-sm">-</button>
+                        <button onclick="updateQuantity('{{ item.id }}', 'increase')" class="btn btn-success btn-sm">+</button>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <a href="{% url 'create_location' %}" class="btn btn-secondary mt-4">Назад</a>
 </div>
+
+<script>
+    function updateQuantity(itemId, action) {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                'item_id': itemId,
+                'action': action
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.item_id) {
+                document.getElementById(`available-${data.item_id}`).textContent = data.available_quantity;
+                document.getElementById(`total-${data.item_id}`).textContent = data.total_quantity;
+            } else {
+                console.error('Не удалось обновить данные инвентаря.');
+            }
+        })
+        .catch(error => console.error('Ошибка запроса:', error));
+    }
+</script>
 {% endblock %}

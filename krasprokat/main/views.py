@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
@@ -7,6 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, NewsItem, CarouselImage
 from .forms import InventoryItemForm, RentalOrderForm, CustomerForm, RentalLocationForm, CategoryForm, LocationForm, CarouselImageForm, NewsItemForm
@@ -83,11 +86,14 @@ def inventory_list(request, location_id):
     location = get_object_or_404(RentalLocation, id=location_id)
     stocks = InventoryStock.objects.filter(location=location)
 
+    for stock in stocks:
+        quantity = request.GET.get(f'quantity-{stock.item.id}', '0')
+        stock.selected_quantity = int(quantity)
+
     return render(request, "main/inventory_list.html", {
         "stocks": stocks,
         "location": location,
     })
-
 
 @login_required
 @user_passes_test(is_admin)
@@ -170,45 +176,9 @@ def inventory_delete(request, pk):
 
     return render(request, "main/inventory_delete.html", {"inventory_item": inventory_item})
 
-
 def inventory_detail(request, pk):
     stock = get_object_or_404(InventoryStock, pk=pk)
     return render(request, "main/inventory_detail.html", {"stock": stock})
-
-def customer_list(request):
-    customers = Customer.objects.all()
-    return render(request, "main/customer_list.html", {"customers": customers})
-
-def add_customer(request):
-    if request.method == "POST":
-        form = CustomerForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("customer_list")
-    else:
-        form = CustomerForm()
-    return render(request, "main/add_customer.html", {"form": form})
-
-def rental_order_list(request):
-    orders = RentalOrder.objects.select_related("item", "customer", "location")
-    return render(request, "main/rental_order_list.html", {"orders": orders})
-
-def create_rental_order(request):
-    if request.method == "POST":
-        form = RentalOrderForm(request.POST)
-        if form.is_valid():
-            rental_order = form.save(commit=False)
-            stock = InventoryStock.objects.get(item=rental_order.item, location=rental_order.location)
-            if stock.available_quantity > 0:
-                rental_order.save()
-                stock.available_quantity -= 1
-                stock.save()
-                return redirect("rental_order_list")
-            else:
-                form.add_error(None, "Недостаточное количество доступного товара.")
-    else:
-        form = RentalOrderForm()
-    return render(request, "main/create_rental_order.html", {"form": form})
 
 def register(request):
     if request.method == "POST":
@@ -234,7 +204,6 @@ def user_login(request):
             return render(request, "main/login.html", {"error": error_message})
     return render(request, "main/login.html")
 
-
 @login_required
 def customer_account(request):
     customer, created = Customer.objects.get_or_create(user=request.user)
@@ -259,14 +228,6 @@ def customer_account(request):
         return redirect("customer_account")
 
     return render(request, "main/customer_account.html", {"customer": customer})
-
-
-@login_required
-def customer_rentals(request):
-    customer = get_object_or_404(Customer, user=request.user)
-    rentals = RentalOrder.objects.filter(customer=customer)
-    return render(request, "main/customer_rentals.html", {"rentals": rentals})
-
 
 @login_required
 @user_passes_test(is_admin)
@@ -355,7 +316,6 @@ def delete_seller(request):
 def admin_dashboard(request):
     return render(request, 'main/admin_dashboard.html')
 
-
 def create_location(request):
     if request.method == 'POST':
         form = LocationForm(request.POST)
@@ -408,8 +368,8 @@ def category_delete(request, pk):
 def add_inventory_to_store(request, location_id):
     location = get_object_or_404(RentalLocation, id=location_id)
     inventory_items = InventoryItem.objects.all()
-
     inventory_stocks = InventoryStock.objects.filter(location=location).select_related('item')
+    stock_dict = {stock.item.id: stock for stock in inventory_stocks}
 
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
@@ -423,20 +383,117 @@ def add_inventory_to_store(request, location_id):
         elif action == 'decrease':
             if stock.available_quantity > 0:
                 stock.available_quantity -= 1
-            stock.total_quantity -= 1
+            if stock.total_quantity > 0:
+                stock.total_quantity -= 1
 
         try:
             stock.full_clean()
             stock.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'item_id': item_id,
+                    'available_quantity': stock.available_quantity,
+                    'total_quantity': stock.total_quantity,
+                })
             return redirect(reverse('store_inventory', args=[location_id]))
         except ValidationError as e:
             error_message = e.messages[0]
-
-    stock_dict = {stock.item.id: stock for stock in inventory_stocks}
 
     return render(request, 'main/add_inventory_to_store.html', {
         'location': location,
         'inventory_items': inventory_items,
         'stock_dict': stock_dict,
         'error_message': error_message if 'error_message' in locals() else None
+    })
+
+def seller_dashboard(request):
+    profile = request.user.profile
+    location = profile.location
+
+    inventory = InventoryStock.objects.filter(location=location)
+
+    today = timezone.now().date()
+    today_returns = RentalOrder.objects.filter(
+        location=location,
+        rental_end_date=today,
+        is_active=True
+    )
+
+    context = {
+        'location': location,
+        'inventory': inventory,
+        'today_returns': today_returns,
+    }
+    return render(request, 'main/seller_dashboard.html', context)
+
+@login_required
+def confirm_booking(request, location_id, stock_id):
+    stocks = []
+    total_quantity = 0
+
+    quantity = int(request.GET.get('quantity', '0'))
+
+    if quantity > 0:
+        stock = get_object_or_404(InventoryStock, item__id=stock_id)
+        stocks.append((stock, quantity))
+        total_quantity += quantity
+
+    if not stocks:
+        messages.error(request, "Не выбрано ни одного инвентаря.")
+        return redirect('inventory_list', location_id=location_id)
+
+    if not hasattr(request.user, 'profile'):
+        messages.error(request, "У вас нет профиля покупателя. Пожалуйста, создайте его.")
+        return redirect('register')
+
+    if request.method == 'POST':
+        rental_start_date = request.POST.get('rental_start_date')
+        rental_end_date = request.POST.get('rental_end_date')
+
+        if rental_end_date <= rental_start_date:
+            messages.error(request, "Дата окончания аренды должна быть позже даты начала.")
+            return redirect('confirm_booking', location_id=location_id, stock_id=stock_id)
+
+        if quantity > stock.available_quantity:
+            messages.error(request, f"Нельзя забронировать больше {stock.available_quantity} единиц {stock.item.name}.")
+            return redirect('inventory_list', location_id=location_id)
+
+        RentalOrder.objects.create(
+            item=stock.item,
+            location=stock.location,
+            customer=request.user.profile,
+            rental_start_date=rental_start_date,
+            rental_end_date=rental_end_date,
+            is_active=True
+        )
+
+        stock.available_quantity -= quantity
+        stock.save()
+
+        messages.success(request, "Бронь успешно создана.")
+        return redirect('customer_rentals')
+
+    today = timezone.now().date()
+    tomorrow = today + timedelta(days=1)
+
+    return render(request, "main/confirm_booking.html", {
+        "stocks": stocks,
+        "total_quantity": total_quantity,
+        "today": today,
+        "tomorrow": tomorrow,
+        "location_id": location_id,
+    })
+
+@login_required
+def rentals(request):
+    profile = request.user.profile
+
+    if profile.role != 'Customer':
+        messages.error(request, "У вас нет доступа к истории аренды.")
+        return redirect('home')
+
+    rental_orders = RentalOrder.objects.filter(customer=profile).order_by('-rental_start_date')
+
+    return render(request, 'main/rentals.html', {
+        'rental_orders': rental_orders
     })

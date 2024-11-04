@@ -1,0 +1,40 @@
+{% extends 'main/base.html' %}
+{% block title %}{{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>{{ location.name }}</h1>
+
+  <div class="mt-3"></div>
+
+  {% if stocks %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Выбранный инвентарь:</h5>
+        <ul class="list-group">
+          {% for stock, quantity in stocks %}
+            <li class="list-group-item">
+              {{ stock.item.name }} - {{ quantity }} шт.
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url 'confirm_booking' location_id=location_id stock_id=stocks.0.0.id %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="rental_start_date" class="form-label">Дата начала аренды:</label>
+        <input type="date" name="rental_start_date" id="rental_start_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="rental_end_date" class="form-label">Дата окончания аренды:</label>
+        <input type="date" name="rental_end_date" id="rental_end_date" class="form-control" value="{{ tomorrow|date:'Y-m-d' }}" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Подтвердить бронирование</button>
+    </form>
+  {% else %}
+    <p>Инвентарь не найден.</p>
+  {% endif %}
+</div>
+{% endblock %}
