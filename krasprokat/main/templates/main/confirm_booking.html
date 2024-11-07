@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+
 {% block title %}{{ location.name }}{% endblock %}
 
 {% block content %}
@@ -34,7 +35,7 @@
       <button type="submit" class="btn btn-primary">Подтвердить бронирование</button>
     </form>
   {% else %}
-    <p>Инвентарь не найден.</p>
+    <p>Инвентарь не выбран. Пожалуйста, выберите товар для бронирования.</p>
   {% endif %}
 </div>
 {% endblock %}

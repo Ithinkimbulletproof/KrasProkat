@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
@@ -122,7 +122,7 @@ def inventory_delete(request, pk):
 
 @login_required
 def confirm_booking(request, location_id, stock_id):
-    """"Подтверждене брони"""
+    """Подтверждение бронирования"""
     stocks = []
     total_quantity = 0
     quantity = int(request.GET.get('quantity', '0'))
@@ -143,6 +143,9 @@ def confirm_booking(request, location_id, stock_id):
     if request.method == 'POST':
         rental_start_date = request.POST.get('rental_start_date')
         rental_end_date = request.POST.get('rental_end_date')
+
+        rental_start_date = datetime.strptime(rental_start_date, '%Y-%m-%d').date()
+        rental_end_date = datetime.strptime(rental_end_date, '%Y-%m-%d').date()
 
         if rental_end_date <= rental_start_date:
             messages.error(request, "Дата окончания аренды должна быть позже даты начала.")
