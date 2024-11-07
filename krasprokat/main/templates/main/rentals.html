@@ -21,8 +21,8 @@
                     <tr>
                         <td>{{ order.item.name }}</td>
                         <td>{{ order.location.name }}</td>
-                        <td>{{ order.rental_start_date }}</td>
-                        <td>{{ order.rental_end_date }}</td>
+                        <td>{{ order.rental_start_date|date:"d.m.Y" }}</td>
+                        <td>{{ order.rental_end_date|date:"d.m.Y" }}</td>
                         <td>{% if order.is_active %}Активна{% else %}Завершена{% endif %}</td>
                     </tr>
                 {% endfor %}
