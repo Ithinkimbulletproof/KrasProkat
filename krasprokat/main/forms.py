@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, CarouselImage, NewsItem
+from .models import InventoryItem, InventoryStock, RentalOrder, RentalLocation, Profile, Category, CarouselImage, NewsItem
 
 
 class CategoryForm(forms.ModelForm):
@@ -55,9 +55,9 @@ class InventoryStockForm(forms.ModelForm):
             raise ValidationError("Доступное количество не может быть отрицательным.")
         return available_quantity
 
-class CustomerForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
     class Meta:
-        model = Customer
+        model = Profile
         fields = ['first_name', 'last_name', 'email', 'phone', 'address']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -132,15 +132,6 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = RentalLocation
         fields = ['name', 'address', 'phone']
-
-class RentalLocationForm(forms.ModelForm):
-    class Meta:
-        model = RentalLocation
-        fields = ['address', 'phone']
-        labels = {
-            'address': 'Адрес',
-            'phone': 'Телефон',
-        }
 
 class CarouselImageForm(forms.ModelForm):
     class Meta:

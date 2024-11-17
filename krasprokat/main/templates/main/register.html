@@ -20,6 +20,18 @@
             {% endif %}
         </div>
         <div class="mb-3">
+            <label for="id_first_name">Имя:</label>
+            <input type="text" name="first_name" id="id_first_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="id_last_name">Фамилия:</label>
+            <input type="text" name="last_name" id="id_last_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="id_email">Email:</label>
+            <input type="email" name="email" id="id_email" class="form-control" required>
+        </div>
+        <div class="mb-3">
             {{ form.password1.label_tag }}
             {{ form.password1 }}
             {% if form.password1.errors %}

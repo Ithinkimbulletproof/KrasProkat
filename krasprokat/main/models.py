@@ -33,7 +33,8 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=30, blank=True, verbose_name="Имя")
     last_name = models.CharField(max_length=30, blank=True, verbose_name="Фамилия")
     phone = models.CharField(max_length=15, blank=True, verbose_name="Телефон")
-    address = models.CharField(max_length=255, blank=True, verbose_name="Адрес")
+    address = models.TextField(blank=True, verbose_name="Адрес")
+    email = models.EmailField(verbose_name="Email", unique=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.get_role_display()})"
@@ -79,28 +80,10 @@ class InventoryStock(models.Model):
     def __str__(self):
         return f"{self.item.name} ({self.location.name}) - {self.available_quantity}/{self.total_quantity}"
 
-class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name="customer_profile")
-    first_name = models.CharField(max_length=100, verbose_name="Имя")
-    last_name = models.CharField(max_length=100, verbose_name="Фамилия")
-    phone = models.CharField(
-        max_length=20,
-        verbose_name="Телефон",
-        validators=[RegexValidator(regex=r"^\+?[1-9]\d{1,14}$")],
-    )
-    email = models.EmailField(verbose_name="Email", unique=True)
-    address = models.TextField(blank=True, verbose_name="Адрес")
-
-    class Meta:
-        ordering = ["first_name", "last_name"]
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
 class RentalOrder(models.Model):
     item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, verbose_name="Товар")
     location = models.ForeignKey(RentalLocation, on_delete=models.CASCADE, verbose_name="Магазин")
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Клиент")
+    customer = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Клиент", limit_choices_to={'role': 'customer'})
     rental_start_date = models.DateField(verbose_name="Дата начала аренды")
     rental_end_date = models.DateField(verbose_name="Дата окончания аренды")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Итоговая цена", editable=False)
@@ -116,22 +99,25 @@ class RentalOrder(models.Model):
         super().clean()
 
     def save(self, *args, **kwargs):
+        """Переопределенный метод save для обработки доступного количества"""
         if self.rental_start_date and self.rental_end_date:
             rental_days = (self.rental_end_date - self.rental_start_date).days
             self.total_price = self.item.price_per_day * rental_days
 
         with transaction.atomic():
             if self.is_active:
-                stock = InventoryStock.objects.get(item=self.item, location=self.location)
-                if stock.available_quantity > 0:
+                stock = InventoryStock.objects.select_for_update().get(item=self.item, location=self.location)
+                if stock.available_quantity >= 1:
                     stock.available_quantity -= 1
                     stock.save()
+                    print(f"Склад обновлен: {stock}")
                 else:
                     raise ValueError("Недостаточное количество доступного товара.")
             super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.item.name} - {self.customer.first_name} {self.customer.last_name}"
+        customer_name = f"{self.customer.first_name} {self.customer.last_name}".strip()
+        return f"{self.item.name} - {customer_name if customer_name else 'Имя не указано'}"
 
 class CarouselImage(models.Model):
     title = models.CharField(max_length=100)

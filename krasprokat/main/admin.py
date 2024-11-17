@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import (InventoryItem, InventoryStock, RentalOrder,
-                     Customer, RentalLocation, Profile, NewsItem, CarouselImage)
+from .models import (InventoryItem, InventoryStock, RentalOrder, RentalLocation, Profile, NewsItem, CarouselImage)
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
@@ -24,24 +23,18 @@ class RentalOrderAdmin(admin.ModelAdmin):
     date_hierarchy = "rental_start_date"
     ordering = ("-rental_start_date",)
 
-@admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "phone", "email")
-    search_fields = ("first_name", "last_name", "phone", "email")
-    ordering = ("first_name",)
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "role", "first_name", "last_name", "phone", "email")
+    list_filter = ("role",)
+    search_fields = ("user__username", "first_name", "last_name")
+    ordering = ("user",)
 
 @admin.register(RentalLocation)
 class RentalLocationAdmin(admin.ModelAdmin):
     list_display = ("name", "address", "phone")
     search_fields = ("name", "address")
     ordering = ("name",)
-
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "role")
-    list_filter = ("role",)
-    search_fields = ("user__username",)
-    ordering = ("user",)
 
 @admin.register(CarouselImage)
 class CarouselImageAdmin(admin.ModelAdmin):

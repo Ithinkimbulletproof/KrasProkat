@@ -9,27 +9,27 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
-from .models import InventoryItem, InventoryStock, RentalOrder, Customer, RentalLocation, Profile, Category, NewsItem, CarouselImage
+from .models import InventoryItem, InventoryStock, RentalOrder, RentalLocation, Profile, Category, NewsItem, CarouselImage
 from .forms import InventoryItemForm, CategoryForm, LocationForm, CarouselImageForm, NewsItemForm
 
 
 #  Основные функции
 def is_admin(user):
-    """"Назначение аккаунту роли администратора"""
+    """Назначение аккаунту роли администратора"""
     return hasattr(user, 'profile') and user.profile.role == 'admin'
 
 def is_seller(user):
-    """"Назначение аккаунту роли продавца"""
+    """Назначение аккаунту роли продавца"""
     return hasattr(user, 'profile') and user.profile.role == 'seller'
 
 def home(request):
-    """"Домашняя страница"""
+    """Домашняя страница"""
     carousel_images = CarouselImage.objects.all()
     news_items = NewsItem.objects.all().order_by('-date')[:2]
     return render(request, 'main/home.html', {'carousel_images': carousel_images, 'news_items': news_items})
 
 def rental_terms(request):
-    """"Условия проката"""
+    """Условия проката"""
     return render(request, "main/rental_terms.html")
 
 def search_users(request):
@@ -42,7 +42,7 @@ def search_users(request):
 @login_required
 @user_passes_test(is_admin)
 def inventory_add(request):
-    """"Добавление оборудования"""
+    """Добавление оборудования"""
     if request.method == "POST":
         form = InventoryItemForm(request.POST, request.FILES)
         if form.is_valid():
@@ -60,14 +60,14 @@ def inventory_add(request):
     return render(request, "main/inventory_add.html", {"form": form})
 
 def inventory_detail(request, pk):
-    """"Детали оборудования"""
+    """Детали оборудования"""
     stock = get_object_or_404(InventoryStock, pk=pk)
     return render(request, "main/inventory_detail.html", {"stock": stock})
 
 @login_required
 @user_passes_test(is_admin)
 def inventory_update(request, pk):
-    """"Обновление оборудования"""
+    """Обновление оборудования"""
     inventory_item = get_object_or_404(InventoryItem, pk=pk)
 
     stocks = InventoryStock.objects.filter(item=inventory_item)
@@ -112,7 +112,7 @@ def inventory_update(request, pk):
 @login_required
 @user_passes_test(is_admin)
 def inventory_delete(request, pk):
-    """"Удаление оборудования"""
+    """Удаление оборудования"""
     inventory_item = get_object_or_404(InventoryItem, pk=pk)
     if request.method == "POST":
         inventory_item.delete()
@@ -123,56 +123,81 @@ def inventory_delete(request, pk):
 @login_required
 def confirm_booking(request, location_id, stock_id):
     """Подтверждение бронирования"""
+    print(f"Запрос в confirm_booking: {request.method}, location_id={location_id}, stock_id={stock_id}")
+
     stocks = []
     total_quantity = 0
-    quantity = int(request.GET.get('quantity', '0'))
+    quantity = int(request.GET.get('quantity', '0')) if request.method == 'GET' else int(request.POST.get('quantity', '0'))
+    print(f"Количество для бронирования: {quantity}")
 
     if quantity > 0:
-        stock = get_object_or_404(InventoryStock, item__id=stock_id)
+        stock = get_object_or_404(InventoryStock, item__id=stock_id, location_id=location_id)
         stocks.append((stock, quantity))
         total_quantity += quantity
 
     if not stocks:
         messages.error(request, "Не выбрано ни одного инвентаря.")
+        print("Инвентарь не выбран, перенаправляем на список инвентаря")
         return redirect('inventory_list', location_id=location_id)
 
     if not hasattr(request.user, 'profile'):
         messages.error(request, "У вас нет профиля покупателя. Пожалуйста, создайте его.")
+        print("Нет профиля покупателя, перенаправляем на регистрацию")
         return redirect('register')
+
+    customer = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
         rental_start_date = request.POST.get('rental_start_date')
         rental_end_date = request.POST.get('rental_end_date')
+        print(f"Получена POST-заявка с датами аренды: {rental_start_date} - {rental_end_date}")
 
-        rental_start_date = datetime.strptime(rental_start_date, '%Y-%m-%d').date()
-        rental_end_date = datetime.strptime(rental_end_date, '%Y-%m-%d').date()
+        try:
+            rental_start_date = datetime.strptime(rental_start_date, '%Y-%m-%d').date()
+            rental_end_date = datetime.strptime(rental_end_date, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, "Неверный формат даты.")
+            print("Неверный формат даты, перенаправляем на подтверждение бронирования")
+            return redirect('confirm_booking', location_id=location_id, stock_id=stock_id)
 
         if rental_end_date <= rental_start_date:
             messages.error(request, "Дата окончания аренды должна быть позже даты начала.")
+            print("Ошибка дат: дата окончания раньше или совпадает с начальной")
             return redirect('confirm_booking', location_id=location_id, stock_id=stock_id)
 
         if quantity > stock.available_quantity:
             messages.error(request, f"Нельзя забронировать больше {stock.available_quantity} единиц {stock.item.name}.")
+            print(f"Ошибка количества: запрошено {quantity}, доступно {stock.available_quantity}")
             return redirect('inventory_list', location_id=location_id)
 
-        RentalOrder.objects.create(
-            item=stock.item,
-            location=stock.location,
-            customer=request.user.profile,
-            rental_start_date=rental_start_date,
-            rental_end_date=rental_end_date,
-            is_active=True
-        )
+        # Создание заказа и сохранение
+        try:
+            rental_order = RentalOrder(
+                item=stock.item,
+                location=stock.location,
+                customer=customer,
+                rental_start_date=rental_start_date,
+                rental_end_date=rental_end_date,
+                is_active=True
+            )
+            rental_order.save()  # Вызовет метод save() модели
+            print(f"Заказ создан: {rental_order}")
 
-        stock.available_quantity -= quantity
-        stock.save()
+            # Обновление количества на складе
+            stock.available_quantity -= quantity
+            stock.save()
+            print("Обновлено количество на складе")
 
-        messages.success(request, "Бронь успешно создана.")
-        return redirect('customer_rentals')
+            messages.success(request, "Бронь успешно создана.")
+            return redirect('rentals')
+        except Exception as e:
+            print(f"Ошибка создания заказа: {e}")
+            messages.error(request, "Не удалось создать заказ. Попробуйте еще раз.")
 
     today = timezone.now().date()
     tomorrow = today + timedelta(days=1)
 
+    print("GET-запрос: Отображение страницы подтверждения бронирования")
     return render(request, "main/confirm_booking.html", {
         "stocks": stocks,
         "total_quantity": total_quantity,
@@ -183,12 +208,12 @@ def confirm_booking(request, location_id, stock_id):
 
 #  Клиенты
 def inventory_location_choice(request):
-    """"Выбор магазина для просмотра инвентаря"""
+    """Выбор магазина для просмотра инвентаря"""
     locations = RentalLocation.objects.all()
     return render(request, "main/inventory_location_choice.html", {"locations": locations})
 
 def inventory_list(request, location_id):
-    """"Просмотр инвентаря на выбранном магазине"""
+    """Просмотр инвентаря на выбранном магазине"""
     location = get_object_or_404(RentalLocation, id=location_id)
     stocks = InventoryStock.objects.filter(location=location)
 
@@ -204,8 +229,8 @@ def inventory_list(request, location_id):
 #  Личный кабинет покупателя
 @login_required
 def customer_account(request):
-    """"Личный кабинет"""
-    customer, created = Customer.objects.get_or_create(user=request.user)
+    """Личный кабинет"""
+    customer, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         first_name = request.POST.get("first_name")
@@ -230,14 +255,14 @@ def customer_account(request):
 
 @login_required
 def rentals(request):
-    """"История броней"""
+    """История броней"""
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
         return redirect('registration')
 
     if profile.role == 'customer':
-        rental_orders = RentalOrder.objects.filter(customer=profile.customer).order_by('-rental_start_date')
+        rental_orders = RentalOrder.objects.filter(customer=profile.location).order_by('-rental_start_date')
     elif profile.role == 'seller':
         rental_orders = RentalOrder.objects.filter(location=profile.location).order_by('-rental_start_date')
     else:
@@ -247,19 +272,29 @@ def rentals(request):
 
 #  Регистрация и вход
 def register(request):
-    """"Регистрация"""
+    """Регистрация"""
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user, role='customer')
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            Profile.objects.create(
+                user=user,
+                role='customer',
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+            )
             return redirect('login')
     else:
         form = UserCreationForm()
+
     return render(request, "main/register.html", {"form": form})
 
 def user_login(request):
-    """"Вход"""
+    """Вход"""
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -275,7 +310,7 @@ def user_login(request):
 #  Инструменты администратора
 @login_required
 def admin_dashboard(request):
-    """"Панель администратора"""
+    """Панель администратора"""
     return render(request, 'main/admin_dashboard.html')
 
 @login_required

@@ -1,10 +1,10 @@
 {% extends 'main/base.html' %}
 
-{% block title %}{{ location.name }}{% endblock %}
+{% block title %}Подтверждение бронирования{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-  <h1>{{ location.name }}</h1>
+  <h1>Подтверждение бронирования для {{ location.name }}</h1>
 
   <div class="mt-3"></div>
 
@@ -15,15 +15,16 @@
         <ul class="list-group">
           {% for stock, quantity in stocks %}
             <li class="list-group-item">
-              {{ stock.item.name }} - {{ quantity }} шт.
+              {{ stock.item.name }} — {{ quantity }} шт.
             </li>
           {% endfor %}
         </ul>
       </div>
     </div>
 
-    <form method="POST" action="{% url 'confirm_booking' location_id=location_id stock_id=stocks.0.0.id %}">
+    <form method="POST" action="{% url 'confirm_booking' location_id=location_id stock_id=stocks.0.0.item.id %}">
       {% csrf_token %}
+      <input type="hidden" name="quantity" value="{{ total_quantity }}">
       <div class="mb-3">
         <label for="rental_start_date" class="form-label">Дата начала аренды:</label>
         <input type="date" name="rental_start_date" id="rental_start_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
